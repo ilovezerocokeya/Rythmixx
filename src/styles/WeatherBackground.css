@@ -1,0 +1,63 @@
+.weather-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  transition: background 1s ease-in-out;
+}
+
+/* 낮 - 일반적인 맑은 날 */
+.weather-background.clear.day {
+  background: url('../assets/sunny.webp') no-repeat center;
+  background-size: cover;
+}
+
+/* 낮 - 구름 낀 날 */
+.weather-background.clouds.day {
+  background: url('../assets/cloud.webp') no-repeat center;
+  background-size: cover;
+}
+
+/* 낮 - 안개 낀 날 */
+.weather-background.mist.day {
+  background: url('../assets/foggy.webp') no-repeat center;
+  background-size: cover;
+}
+
+/* 낮 - 비 오는 날 */
+.weather-background.rain.day {
+  background: url('../assets/rain.webp') no-repeat center;
+  background-size: cover;
+}
+
+/* 낮 - 눈 오는 날 */
+.weather-background.snow.day {
+  background: url('../assets/snow.webp') no-repeat center;
+  background-size: cover;
+}
+
+/* 낮 - 천둥 번개 */
+.weather-background.thunderstorm.day {
+  background: url('../assets/thunder.webp') no-repeat center;
+  background-size: cover;
+}
+
+/* 일반적인 맑은 밤 */
+.weather-background.night {
+  background: url('../assets/stars.webp') no-repeat center;
+  background-size: cover;
+}
+
+/* 비 오는 밤 */
+.weather-background.rain.night {
+  background: url('../assets/rain.webp') no-repeat center;
+  background-size: cover;
+}
+
+/* 눈 오는 밤 */
+.weather-background.snow.night {
+  background: url('../assets/snowflake.webp') no-repeat center;
+  background-size: cover;
+}

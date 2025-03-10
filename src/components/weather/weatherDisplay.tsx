@@ -9,12 +9,12 @@ const WeatherDisplay = () => {
     if (!weather) return "⏳"; // 날씨 정보가 없을 때 로딩 표시
 
     if (timeOfDay === "night") {
-      // 🌙 밤일 때
+      // 밤일 때
       if (weather === "Rain") return "🌧️"; // 비
       if (weather === "Snow") return "❄️"; // 눈
       return "🌙"; // 기본값: 맑은 밤
     } else {
-      // ☀️ 낮일 때
+      // 낮일 때
       switch (weather) {
         case "Clear":
           return "☀️"; // 맑음
@@ -25,7 +25,7 @@ const WeatherDisplay = () => {
         case "Snow":
           return "❄️"; // 눈
         case "Thunderstorm":
-          return "⛈️"; // 천둥번개
+          return "⛈️"; // 천둥
         default:
           return "❓"; // 알 수 없음
       }

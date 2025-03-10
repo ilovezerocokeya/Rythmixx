@@ -17,8 +17,6 @@ const useReverseGeocoding = () => {
         );
         const data = await response.json();
 
-        console.log("📍 [Geocoding API 응답]:", data);
-
         if (data.length > 0) {
           const city = data[0].name || "알 수 없음"; // 도시명만 표시
           setLocation(city);
@@ -26,7 +24,7 @@ const useReverseGeocoding = () => {
           setLocation("위치 정보를 찾을 수 없음");
         }
       } catch (error) {
-        console.error("📍 Geocoding 실패", error);
+        console.error("Geocoding 실패", error);
         setLocation("위치 정보를 가져올 수 없음");
       }
     };

@@ -3,9 +3,6 @@ import LocationDisplay from "./components/location/locationDisplay";
 import WeatherDisplay from "./components/weather/weatherDisplay";
 import useWeather from "./hooks/useWeather";
 
-
-
-
 const Home = () => {
   useGeolocation();
   useWeather();

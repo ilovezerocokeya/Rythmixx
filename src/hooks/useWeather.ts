@@ -1,10 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocationStore } from "../stores/useLocationStore";
 import { useWeatherStore } from "../stores/useWeatherStore";
 
 const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
-
-console.log("API_KEY:", API_KEY);
 
 // 날씨 데이터를 5가지 유형으로 단순화하는 함수
 const simplifyWeather = (weather: string, cloudiness: number) => {
@@ -26,12 +24,14 @@ const simplifyWeather = (weather: string, cloudiness: number) => {
 
 const useWeather = () => {
   const { lat, lon } = useLocationStore();
-  const { setWeather } = useWeatherStore();
+  const { setWeather, setTimeOfDay } = useWeatherStore();
+  const [sunTimes, setSunTimes] = useState<{ sunrise: number; sunset: number } | null>(null);
 
   useEffect(() => {
     if (!lat || !lon || !API_KEY) return;
 
     const fetchWeather = async () => {
+
 
       try {
         const response = await fetch(
@@ -44,7 +44,6 @@ const useWeather = () => {
         }
 
         const data = await response.json();
-        console.log("OpenWeather API 응답:", data);
 
         // 구름량과 날씨 상태를 활용한 변환
         const cloudiness = data.clouds?.all ?? 0; // 구름량 (%)
@@ -52,7 +51,14 @@ const useWeather = () => {
         const simplifiedWeather = simplifyWeather(rawWeather, cloudiness);
 
         setWeather(simplifiedWeather);
-        console.log(`현재 날씨: ${simplifiedWeather} (원본: ${rawWeather}, 구름량: ${cloudiness}%)`);
+
+        // 일출/일몰 시간 저장 (처음 요청할 때만)
+        if (!sunTimes) {
+          setSunTimes({
+            sunrise: data.sys.sunrise,
+            sunset: data.sys.sunset,
+          });
+        }
 
       } catch (error) {
         console.error("날씨 정보를 가져오는 데 실패했습니다.", error);
@@ -62,7 +68,15 @@ const useWeather = () => {
 
     fetchWeather();
 
-  }, [lat, lon, API_KEY, setWeather]);
+  }, [lat, lon, API_KEY, setWeather, sunTimes]);
+
+    // 현재 시간 기준으로 낮/밤 판별
+    useEffect(() => {
+      if (!sunTimes) return;
+  
+      const currentTime = Math.floor(Date.now() / 1000); // 초 단위로 변환
+      setTimeOfDay(currentTime > sunTimes.sunrise && currentTime < sunTimes.sunset ? "day" : "night");
+    }, [sunTimes, setTimeOfDay]);
 
 
   return null;

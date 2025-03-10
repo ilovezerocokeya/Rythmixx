@@ -19,8 +19,6 @@ const WeatherDisplay = () => {
         return "❄️"; // 눈
       case "Thunderstorm":
         return "⛈️"; // 천둥
-      case "Drizzle":
-        return "🌦️"; // 이슬비
       default:
         return "❓"; // 알 수 없음
     }

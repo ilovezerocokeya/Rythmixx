@@ -24,7 +24,7 @@ const simplifyWeather = (weather: string, cloudiness: number) => {
 
 const useWeather = () => {
   const { lat, lon } = useLocationStore();
-  const { setWeather, setTimeOfDay } = useWeatherStore();
+  const { setWeather, setTimeOfDay, setTemperature } = useWeatherStore();
   const [sunTimes, setSunTimes] = useState<{ sunrise: number; sunset: number } | null>(null);
 
   useEffect(() => {
@@ -51,6 +51,10 @@ const useWeather = () => {
         const simplifiedWeather = simplifyWeather(rawWeather, cloudiness);
 
         setWeather(simplifiedWeather);
+
+        // 기온 설정
+        const temperature = data.main?.temp ?? null; // 기온 (없으면 null)
+        setTemperature(temperature);
 
         // 일출/일몰 시간 저장 (처음 요청할 때만)
         if (!sunTimes) {

@@ -2,7 +2,7 @@ import { useWeatherStore } from "../../stores/useWeatherStore";
 
 // 현재 날씨 상태를 화면에 표시
 const WeatherDisplay = () => {
-  const { weather, timeOfDay } = useWeatherStore();
+  const { weather, timeOfDay, temperature } = useWeatherStore();
 
   // 날씨에 따라 적절한 이모지 반환
   const getWeatherEmoji = () => {
@@ -33,10 +33,30 @@ const WeatherDisplay = () => {
   };
 
   return (
-    <div>
-      <p style={{ fontSize: "2rem" }}>{getWeatherEmoji()}</p>
+    <div style={styles.container}>
+      <span style={styles.emoji}>{getWeatherEmoji()}</span>
+      <span style={styles.temperature}>
+        {temperature !== null ? `${temperature.toFixed(1)}°C` : "온도 정보를 가져오는 중..."}
+      </span>
     </div>
   );
+};
+
+// 스타일 객체
+const styles = {
+  container: {
+    display: "flex", // 좌우 정렬을 위한 flex 적용
+    alignItems: "center", // 수직 가운데 정렬
+    gap: "20px", // 요소 간 간격
+  },
+  emoji: {
+    fontSize: "2rem",
+  },
+  temperature: {
+    fontSize: "1.2rem",
+    color: "red", // 온도는 빨간색으로 표시
+    fontWeight: "bold",
+  },
 };
 
 export default WeatherDisplay;

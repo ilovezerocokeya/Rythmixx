@@ -40,21 +40,37 @@ export const mockPreferredPlaylists = [
   export const mockWeatherPlaylists = [
     {
       id: "7",
-      title: "Rainy Day Jazz",
+      title: "☔ 빗소리와 어울리는 감성 팝",
       imageUrl: "https://via.placeholder.com/150",
-      onClick: () => alert("Rainy Day Jazz 플레이리스트 클릭"),
+      onClick: () => alert("Rainy Classical 플레이리스트 클릭"),
+      weatherType: "rainy"
     },
     {
       id: "8",
-      title: "Sunny Pop Hits",
+      title: "☀️ 햇살 아래에서 듣기 좋은 노래",
       imageUrl: "https://via.placeholder.com/150",
-      onClick: () => alert("Sunny Pop Hits 플레이리스트 클릭"),
+      onClick: () => alert("Sunny Classical 플레이리스트 클릭"),
+      weatherType: "sunny"
     },
     {
       id: "9",
-      title: "Snowy Classical",
+      title: "❄️ 포근한 겨울 감성 노래",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("Snowy Classical 플레이리스트 클릭"),
+      weatherType: "snowy"
     },
-
+    {
+      id: "10",
+      title: "☁️ 흐린 날의 로파이 힙합",
+      imageUrl: "https://via.placeholder.com/150",
+      onClick: () => alert("Cloudy Classical 플레이리스트 클릭"),
+      weatherType: "cloudy"
+    },
+    {
+      id: "12",
+      title: "⚡ 폭풍우 속의 강렬한 비트",
+      imageUrl: "https://via.placeholder.com/150",
+      onClick: () => alert("Thunder Classical 플레이리스트 클릭"),
+      weatherType: "thunder"
+    }
   ];

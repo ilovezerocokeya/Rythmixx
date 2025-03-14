@@ -40,9 +40,9 @@ const LocationDisplay = () => {
 
   return (
     <div
+      className="text-sm md:text-lg transition-colors duration-500 ease-in-out"
       style={{
         color: getTextColor(weather, timeOfDay), // 자동 글자색 설정
-        transition: "color 0.5s ease-in-out", // 색상 변화 부드럽게
       }}
     >
       <p>{displayCity ? displayCity : "위치 정보를 가져오는 중..."}</p>

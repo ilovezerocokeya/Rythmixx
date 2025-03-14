@@ -1,11 +1,9 @@
 import useGeolocation from "./hooks/useGeolocation";
-import LocationDisplay from "./components/location/locationDisplay";
-import WeatherDisplay from "./components/weather/weatherDisplay";
 import useWeather from "./hooks/useWeather";
-import WeatherBackground from "./components/ui/weatherBackground";
 import { useWeatherStore } from "./stores/useWeatherStore";
 import PlaylistSlider from "./components/playlist/playlistSlider";
 import { usePlaylistStore } from "./stores/usePlaylistStore";
+import WeatherPlaylistSlider from "./components/playlist/weatherPlaylistSlider";
 
 const Home = () => {
   useGeolocation();
@@ -23,47 +21,33 @@ const Home = () => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: "100vw", minHeight: "100vh" }}>
-      <WeatherBackground />
-  
-      {/* 중앙 정렬을 위한 래퍼 */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", width: "100%" }}>
-        {/* 상단 정보 (닉네임, 날씨, 위치) */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
-          <h1 style={{ color: getTextColor(weather, timeOfDay) }}>
-            Hello! {nickname}
-          </h1>
-          <WeatherDisplay />
-          <span style={{ color: getTextColor(weather, timeOfDay) }}>|</span>
-          <LocationDisplay />
-        </div>
+    <div className="relative flex flex-col items-center w-screen min-h-screen bg-black bg-opacity-40 text-white">
+      {/* 🔹 날씨 추천 플레이리스트 (상단 고정) */}
+      <div className="relative w-full h-[85vh]">
+        <WeatherPlaylistSlider 
+          playlists={weatherPlaylists} 
+          nickname={nickname} 
+          weather={weather} 
+          timeOfDay={timeOfDay} 
+          getTextColor={getTextColor} 
+        />
+      </div>
 
-        {/* 플레이리스트 섹션 */}
-        <div className="flex flex-col items-center w-full max-w-[1600px]">
-          {/* 선호 장르별 플레이리스트 */}
-          <div className="mt-20"> 
-            <PlaylistSlider 
-              title={
-                <span style={{ color: getTextColor(weather, timeOfDay) }}>
-                  🎵 선호 장르별 추천
-                </span>
-              } 
-              playlists={preferredPlaylists} 
-            />
-          </div>
+      {/* 🔹 추천 플레이리스트 */}
+      <div className="relative z-10 flex flex-col items-center w-full max-w-[1200px] space-y-12">
+        <PlaylistSlider 
+          title="😊 기분에 따라 골라보세요!" 
+          playlists={preferredPlaylists} 
+        />
 
-          {/* 오늘 날씨 기반 플레이리스트 */}
-          <div className="mt-20"> 
-            <PlaylistSlider 
-              title={
-                <span style={{ color: getTextColor(weather, timeOfDay) }}>
-                  오늘의 날씨 맞춤 선곡
-                </span>
-              } 
-              playlists={weatherPlaylists} 
-            />
-          </div>
-        </div>
+        <PlaylistSlider 
+          title="🎸 장르별 추천 플레이리스트" 
+          playlists={preferredPlaylists} 
+        />
+      </div>
+      
+      <div>
+        
       </div>
     </div>
   );

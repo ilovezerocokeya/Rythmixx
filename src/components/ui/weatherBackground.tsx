@@ -1,10 +1,53 @@
-import { useWeatherStore } from "../../stores/useWeatherStore";
 import "../../styles/WeatherBackground.css";
 
-const WeatherBackground = () => {
-    const { weather, timeOfDay } = useWeatherStore();
+type WeatherBackgroundProps = {
+  weatherType: string;
+};
 
-  return <div className={`weather-background ${weather?.toLowerCase()} ${timeOfDay}`}></div>
+const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ weatherType }) => {
+
+  let backgroundImage = "";
+
+  switch (weatherType) {
+    case "rainy":
+      backgroundImage = "/images/rain.webp";
+      break;
+    case "snowy":
+      backgroundImage = "/images/snow.webp";
+      break;
+    case "sunny":
+      backgroundImage = "/images/sunny.webp";
+      break;
+    case "cloudy":
+      backgroundImage = "/images/cloud.webp";
+      break;
+    case "thunder":
+      backgroundImage = "/images/thunder.webp";
+      break;
+  }
+
+  return (
+    <div
+      className="absolute inset-0 bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        zIndex: "-10",
+      }}
+    />
+  );
 };
 
 export default WeatherBackground;
+
+
+
+
+
+
+
+
+
+
+  

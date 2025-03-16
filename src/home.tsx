@@ -10,7 +10,7 @@ const Home = () => {
   useWeather();
   
   const { weather, timeOfDay } = useWeatherStore();
-  const { preferredPlaylists, weatherPlaylists } = usePlaylistStore();
+  const { preferredPlaylists, weatherPlaylists, genrePlaylists } = usePlaylistStore();
   const nickname = "zerocokeya";
 
   // 날씨와 시간대에 따른 글자색 반환
@@ -34,7 +34,7 @@ const Home = () => {
       </div>
 
       {/* 🔹 추천 플레이리스트 */}
-      <div className="relative z-10 flex flex-col items-center w-full max-w-[1200px] space-y-12">
+      <div className="relative flex flex-col pt-10 items-center w-full max-w-[1200px]">
         <PlaylistSlider 
           title="😊 기분에 따라 골라보세요!" 
           playlists={preferredPlaylists} 
@@ -42,7 +42,7 @@ const Home = () => {
 
         <PlaylistSlider 
           title="🎸 장르별 추천 플레이리스트" 
-          playlists={preferredPlaylists} 
+          playlists={genrePlaylists} 
         />
       </div>
       

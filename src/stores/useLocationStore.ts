@@ -12,7 +12,7 @@ type LocationState = {
 const savedLocation = JSON.parse(localStorage.getItem("userLocation") || "null");
 const SEOUL_CITY_HALL = { lat: 37.5665, lon: 126.9780 };
 
-// 사용자의 현재 위치를 저장 및 관리
+// 사용자의 현재 위치를 저장 및 관리 | 기본값은 서울시청으로 위치값 고정
 export const useLocationStore = create<LocationState>((set) => ({
   lat: savedLocation?.lat || SEOUL_CITY_HALL.lat,
   lon: savedLocation?.lon || SEOUL_CITY_HALL.lon,
@@ -20,7 +20,7 @@ export const useLocationStore = create<LocationState>((set) => ({
 
   setLocation: (lat, lon) => {
     set({ lat, lon, error: null });
-    localStorage.setItem("userLocation", JSON.stringify({ lat, lon })); // 위치 저장
+    localStorage.setItem("userLocation", JSON.stringify({ lat, lon }));
   },
 
   setError: (error) => {

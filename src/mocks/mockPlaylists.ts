@@ -78,7 +78,7 @@ export const mockPreferredPlaylists = [
     },
     {
       id: "9",
-      title: "❄️ 포근한 겨울 감성 노래",
+      title: "❄️ 눈오는 날 듣고 싶은 따듯한 노래",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("Snowy Classical 플레이리스트 클릭"),
       weatherType: "snowy"

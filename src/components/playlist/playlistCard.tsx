@@ -23,18 +23,19 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ id, title, imageUrl, onClic
       data-id={id}
     >
       {/* 플레이리스트 이미지 */}
-      <motion.div className="relative w-full h-full rounded-full overflow-hidden border border-gray-700 bg-gray-900">
+      <div className="w-full h-full rounded-full overflow-hidden border border-gray-700 bg-gray-900">
         <motion.img 
           src={imageUrl} 
           alt={title} 
-          className="absolute inset-0 w-full h-full object-cover"
+          className="w-full h-full object-cover object-center aspect-square"
           loading="lazy"
           whileHover={{ scale: 1.05 }} 
         />
-      </motion.div>
+      </div>
 
       {/* 플레이리스트 제목 */}
-      <div className="absolute bottom-[-20px] md:bottom-[-40px] text-[10px] md:text-sm bg-gray-800 text-white font-semibold px-2 py-1 rounded-full">
+      <div className="absolute bottom-[-20px] md:bottom-[-40px] text-[11px] md:text-sm bg-gray-800 text-white font-semibold px-2 py-1 rounded-full
+                      whitespace-nowrap overflow-hidden text-ellipsis max-w-[90px] md:max-w-[150px]">
         {title}
       </div>
     </motion.div>

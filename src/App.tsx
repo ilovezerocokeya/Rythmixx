@@ -5,7 +5,7 @@ import AuthPage from './Routers/auth/AuthPage.tsx';
 function App() {
   return (
     <>
-      <div className="w-[320px] h-[598px] border mx-auto flex flex-col justify-center text-center">
+      <div className="w-[320px] h-[598px] border mx-auto flex flex-col justify-center text-center bg-slate-900">
         <PWABadge />
         <AuthPage />
       </div>

@@ -17,24 +17,28 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ id, title, imageUrl, onClic
         zIndex: 10, 
       }}
       whileTap={{ scale: 0.95 }}
-      className="w-[100px] h-[100px] md:w-[180px] md:h-[180px] rounded-full cursor-pointer border border-gray-700 bg-gray-900 
+      className="w-[70px] h-[70px] rounded-full cursor-pointer border border-gray-700 bg-gray-900 
                  transition-transform flex flex-col items-center justify-center text-center relative"
       onClick={onClick}
       data-id={id}
     >
       {/* 플레이리스트 이미지 */}
-      <motion.div className="relative w-full h-full rounded-full overflow-hidden border border-gray-700 bg-gray-900">
+      <div className="w-full h-full rounded-full overflow-hidden border border-gray-700 bg-gray-900">
         <motion.img 
           src={imageUrl} 
           alt={title} 
-          className="absolute inset-0 w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-full"
           loading="lazy"
           whileHover={{ scale: 1.05 }} 
         />
-      </motion.div>
+      </div>
 
       {/* 플레이리스트 제목 */}
-      <div className="absolute bottom-[-20px] md:bottom-[-40px] text-[10px] md:text-sm bg-gray-800 text-white font-semibold px-2 py-1 rounded-full">
+      <div className="absolute left-1/2 transform -translate-x-1/2 bottom-[-25px] 
+                text-[8px] text-white font-semibold
+                w-[70px] min-h-[20px] text-center leading-[10px] 
+                flex flex-col justify-start items-center whitespace-normal break-words"
+      >
         {title}
       </div>
     </motion.div>

@@ -25,8 +25,8 @@ const WeatherDisplay = () => {
   }, [weather]); // weather 값이 변경될 때만 재계산
 
   return (
-    <div className="flex items-center gap-4 md:gap-6">
-      <span className="text-3xl md:text-4xl">{weatherEmoji()}</span>
+    <div className="flex items-center gap-4">
+      <span className="text-xl">{weatherEmoji()}</span>
     </div>
   );
 };

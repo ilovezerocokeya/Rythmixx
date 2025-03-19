@@ -6,7 +6,7 @@ const LocationDisplay = () => {
 
   return (
     <div
-      className="text-sm font-bold md:text-lg transition-colors duration-500 ease-in-out"
+      className="text-xs font-bold transition-colors duration-500 ease-in-out"
     >
       <p>{city ? city : "위치 정보를 가져오는 중..."}</p>
     </div>

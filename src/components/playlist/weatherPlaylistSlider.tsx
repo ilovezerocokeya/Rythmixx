@@ -91,7 +91,6 @@ const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ playlists
         onClick={() => scroll("left")}
         whileHover={{
           scale: 1.2,
-          backgroundColor: "rgba(255, 255, 255, 0.3)", 
           opacity: 0.8,
         }}
         className="absolute left-4 top-25 transform -translate-y-1/2 text-white text-lg transition-colors duration-200 bg-transparent"
@@ -104,7 +103,6 @@ const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ playlists
         onClick={() => scroll("right")}
         whileHover={{
           scale: 1.2,
-          backgroundColor: "rgba(255, 255, 255, 0.3)",
           opacity: 0.8,
         }}
         className="absolute right-4 top-25 transform -translate-y-1/2 text-white text-lg transition-colors duration-200 bg-transparent"
@@ -112,6 +110,19 @@ const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ playlists
       >
         →
       </motion.button>
+
+      {/* 인디케이터 */}
+      <div className="absolute top-43 left-1/2 transform -translate-x-1/2 flex justify-center space-x-2 z-10">
+        {playlists.map((_, index) => (
+          <div
+            key={index}
+            className={`transition-all duration-300 
+              ${index === currentIndex ? "bg-white scale-125 h-0.5 w-4" : "bg-gray-500 h-0.5 w-4"} 
+              rounded-full`}
+            onClick={() => scroll(index === currentIndex ? "right" : "left")}
+          />
+        ))}
+      </div>
     </div>
   );
 };

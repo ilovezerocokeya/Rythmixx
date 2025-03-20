@@ -9,11 +9,11 @@ const Home = () => {
   useWeather();
   
   const { preferredPlaylists, weatherPlaylists, genrePlaylists } = usePlaylistStore();
-  const nickname = "zerocokeya";
+  const nickname = "ilovezerocokeya";
 
   return (
     <div className="flex justify-center items-center w-screen h-screen">
-      <div className="relative flex flex-col items-center w-[320px] h-[568px] bg-black bg-opacity-40 text-white overflow-hidden">
+      <div className="relative flex flex-col items-center w-[320px] h-[568px] bg-black text-xs bg-opacity-40 text-white overflow-hidden">
         {/* 날씨 추천 플레이리스트 */}
         <div className="relative w-full h-[150px]">
           <WeatherPlaylistSlider 
@@ -23,7 +23,7 @@ const Home = () => {
         </div>
 
         {/* 추천 플레이리스트 */}
-        <div className="relative flex flex-col pt-10 items-center w-full max-w-[300px]">
+        <div className="relative flex flex-col pt-12 items-center w-full max-w-[340px]">
           <PlaylistSlider 
             title="😊 기분에 따라 골라보세요!" 
             playlists={preferredPlaylists} 

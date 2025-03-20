@@ -18,81 +18,68 @@ type WeatherPlaylistSliderProps = {
 
 const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ playlists, nickname }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [backgroundType, setBackgroundType] = useState("default"); 
   const controls = useAnimation();
   const totalSlides = playlists.length;
-  const textColor = useMemo(() => {
-    switch (backgroundType) {
-      case "rainy": return "#ffffff";  
-      case "snowy": return "#000000";  
-      case "sunny": return "#ffffff";  
-      case "cloudy": return "#ffffff"; 
-      case "thunder": return "#000000";
-      default: return "#ffffff";
-    }
-  }, [backgroundType]); 
 
+  // 슬라이드 목록
   const playlistItems = useMemo(() => {
     return playlists.map((playlist) => (
       <motion.div
         key={playlist.id}
-        className="w-full min-w-full h-full flex flex-col items-center justify-center text-black"
+        className="w-full min-w-full h-full flex flex-col items-center justify-center text-white"
       >
-        <div className="absolute mb-150 text-center z-10">
-          <h2 className="text-m font-bold whitespace-nowrap">
-            {playlist.title}
-          </h2>
+        <div className="absolute top-38 text-center z-10">
+          <h2 className="text-m font-bold whitespace-nowrap">{playlist.title}</h2>
         </div>
       </motion.div>
     ));
   }, [playlists]);
 
-  const scroll = useCallback(async (newIndex: number) => {
-    if (newIndex < 0) newIndex = totalSlides - 1;
-    else if (newIndex >= totalSlides) newIndex = 0;
+  // 슬라이드 이동 함수
+  const scroll = useCallback((direction: "left" | "right") => {
+    setCurrentIndex((prev) => {
+      let newIndex = direction === "left" ? prev - 1 : prev + 1;
+      if (newIndex < 0) newIndex = totalSlides - 1;
+      if (newIndex >= totalSlides) newIndex = 0;
 
-    setCurrentIndex(newIndex);
-    await controls.start({ 
-      x: -newIndex * 100 + "%", 
-      transition: { type: "spring", stiffness: 150, damping: 20 } 
+      controls.start({
+        x: -newIndex * 100 + "%",
+        transition: { type: "spring", stiffness: 150, damping: 20 },
+      });
+
+      return newIndex;
     });
   }, [controls, totalSlides]);
 
   return (
     <div className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden">
-      {/* 날씨 배경 적용 */}
+      {/* 날씨 배경 */}
       <div className="absolute inset-0 -z-0">
-        <WeatherBackground 
-          weatherType={playlists[currentIndex]?.weatherType || "default"} 
-          setBackgroundType={setBackgroundType} 
-        />
+        <WeatherBackground weatherType={playlists[currentIndex]?.weatherType || "default"} />
       </div>
 
       {/* 닉네임 & 날씨 정보 */}
-      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 text-center z-10">
-        <h1 className="text-sm font-bold" style={{ color: textColor }}>
-          Hello, {nickname}
+      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-[95%] flex items-center justify-center space-x-1 z-10">
+        <h1 className="text-xs text-white font-bold whitespace-nowrap">
+          Hello! {nickname},
         </h1>
-        <div className="flex items-center justify-center space-x-1">
-          <WeatherDisplay />
-          <span style={{ color: textColor }}>|</span>
-          <LocationDisplay />
-        </div>
+        <WeatherDisplay />
+        <LocationDisplay />
       </div>
 
       {/* 슬라이더 */}
-      <motion.div
-        animate={controls}
+      <motion.div 
+        animate={controls} 
         className="flex w-full h-full cursor-grab"
-        drag="x"
-        dragConstraints={{ left: -100 * (totalSlides - 1), right: 0 }}
-        dragElastic={0.15}
-        dragMomentum={false}
+        drag="x" // 스와이프 활성화
+        dragConstraints={{ left: -100 * (totalSlides - 1), right: 0 }} // 드래그 범위 제한
+        dragElastic={0.2} // 탄성 설정
+        dragMomentum={true} // 드래그 모멘텀 활성화
         onDragEnd={(event, info) => {
           if (info.velocity.x < -50) {
-            scroll(currentIndex + 1);
+            scroll("right");
           } else if (info.velocity.x > 50) {
-            scroll(currentIndex - 1);
+            scroll("left");
           }
         }}
       >
@@ -101,37 +88,30 @@ const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ playlists
 
       {/* 좌우 화살표 버튼 */}
       <motion.button
-        onClick={() => scroll(currentIndex - 1)}
-        whileHover={{ scale: 1.3, color: "#ffffff" }}
-        className="absolute left-1 top-[13%] transform -translate-y-1/2 text-gray text-lg transition-colors duration-200"
+        onClick={() => scroll("left")}
+        whileHover={{
+          scale: 1.2,
+          backgroundColor: "rgba(255, 255, 255, 0.3)", 
+          opacity: 0.8,
+        }}
+        className="absolute left-4 top-25 transform -translate-y-1/2 text-white text-lg transition-colors duration-200 bg-transparent"
         aria-label="이전 슬라이드"
       >
         ←
       </motion.button>
-            
+
       <motion.button
-        onClick={() => scroll(currentIndex + 1)}
-        whileHover={{ scale: 1.3, color: "#ffffff" }}
-        className="absolute right-1 top-[13%] transform -translate-y-1/2 text-gray text-lg transition-colors duration-200"
+        onClick={() => scroll("right")}
+        whileHover={{
+          scale: 1.2,
+          backgroundColor: "rgba(255, 255, 255, 0.3)",
+          opacity: 0.8,
+        }}
+        className="absolute right-4 top-25 transform -translate-y-1/2 text-white text-lg transition-colors duration-200 bg-transparent"
         aria-label="다음 슬라이드"
       >
         →
       </motion.button>
-
-      {/* 인디케이터 */}
-      <div className="absolute mb-120 w-full flex justify-center space-x-2 z-10">
-        {playlists.map((_, index) => (
-          <div
-            key={index}
-            className={`transition-all duration-300 
-              ${index === currentIndex 
-                ? "bg-white scale-125 h-0.5 w-4"  
-                : "bg-gray-500 h-0.5 w-4"         
-              } rounded-full`}
-            onClick={() => scroll(index)}
-          />
-        ))}
-      </div>
     </div>
   );
 };

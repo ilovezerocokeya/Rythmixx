@@ -10,7 +10,7 @@ const useReverseGeocoding = () => {
     lat: null,
     lon: null,
   });
-  const retryCount = useRef(0);
+  const [retryCount, setRetryCount] = useState(0);
   const maxRetries = 3; // 최대 재시도 횟수
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const useReverseGeocoding = () => {
       return;
     }
 
-    const fetchLocationName = async () => {
+    const fetchLocationName = async (retryDelay = 5000) => {
       try {
         const response = await fetch(
           `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${API_KEY}`
@@ -30,10 +30,10 @@ const useReverseGeocoding = () => {
 
         console.log("[Geocoding API 응답]:", data);
 
-        if (data.length > 0) {
+        if (Array.isArray(data) && data.length > 0) {
           setLocation(data[0].name || "알 수 없음");
           lastFetchedCoords.current = { lat, lon }; // 최신 좌표 저장
-          retryCount.current = 0; // 성공 시 재시도 횟수 초기화
+          setRetryCount(0); // 성공 시 재시도 횟수 초기화
         } else {
           setLocation("위치 정보를 찾을 수 없음");
         }
@@ -41,16 +41,18 @@ const useReverseGeocoding = () => {
         console.error("[Geocoding 실패]", error);
         setLocation("위치 정보를 가져올 수 없음");
 
-        // 실패 시 5초 후 재시도 (최대 3번)
-        if (retryCount.current < maxRetries) {
-          retryCount.current += 1;
-          setTimeout(fetchLocationName, 5000);
+        // 실패 시 재시도
+        if (retryCount < maxRetries) {
+          setTimeout(() => {
+            setRetryCount((prev) => prev + 1);
+            fetchLocationName(retryDelay * 2); // 5초 → 10초 → 20초 증가
+          }, retryDelay);
         }
       }
     };
 
     fetchLocationName();
-  }, [lat, lon]);
+  }, [lat, lon, retryCount]);
 
   return location;
 };

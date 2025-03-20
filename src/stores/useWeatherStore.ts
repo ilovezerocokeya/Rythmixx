@@ -2,14 +2,14 @@ import { create } from "zustand";
 
 type WeatherState = {
   weather: string | null;
-  temperature: number | null; 
+  timeOfDay: string;
   setWeather: (weather: string) => void;
-  setTemperature: (temperature: number | null) => void; // 기온 설정 함수 추가
+  setTimeOfDay: (timeOfDay: string) => void;
 };
 
 export const useWeatherStore = create<WeatherState>((set) => ({
   weather: null,
-  temperature: null,
+  timeOfDay: "day",
   setWeather: (weather) => set({ weather }),
-  setTemperature: (temperature) => set({ temperature }),
+  setTimeOfDay: (timeOfDay) => set({ timeOfDay }),
 }));

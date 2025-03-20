@@ -28,7 +28,7 @@ const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ playlists
         key={playlist.id}
         className="w-full min-w-full h-full flex flex-col items-center justify-center text-white"
       >
-        <div className="absolute top-38 text-center z-10">
+        <div className="absolute top-35 text-center">
           <h2 className="text-m font-bold whitespace-nowrap">{playlist.title}</h2>
         </div>
       </motion.div>
@@ -112,7 +112,7 @@ const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ playlists
       </motion.button>
 
       {/* 인디케이터 */}
-      <div className="absolute top-43 left-1/2 transform -translate-x-1/2 flex justify-center space-x-2 z-10">
+      <div className="absolute top-42 left-1/2 transform -translate-x-1/2 flex justify-center space-x-2">
         {playlists.map((_, index) => (
           <div
             key={index}

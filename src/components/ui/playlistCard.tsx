@@ -1,29 +1,28 @@
-import { motion } from "framer-motion";
+import { memo } from "react";
 
 type PlaylistCardProps = {
   id: string;
   title: string;
-  imageUrl: string;
+  imageUrl: string; 
   onClick: () => void;
 };
 
 const PlaylistCard: React.FC<PlaylistCardProps> = ({ title, imageUrl, onClick }) => {
   return (
-    <motion.div
-      whileHover={{ scale: 0.95, y: -3 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ duration: 0.2 }}
-      className="w-[90px] h-[110px] rounded-2xl cursor-pointer border border-gray-700 bg-gray-900 
-                 flex flex-col items-center justify-between text-center relative p-1 shadow-xl"
+    <div
       onClick={onClick}
+      className="w-[90px] h-[110px] rounded-2xl cursor-pointer border border-gray-700 bg-gray-900 
+                 flex flex-col items-center justify-between text-center relative p-1 shadow-xl
+                 transition-transform duration-200 transform hover:scale-[0.95] hover:-translate-y-1 active:scale-[0.95]"
     >
       {/* 플레이리스트 이미지 */}
       <div className="w-[85px] h-[65px] rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
-        <motion.img
+        <img
           src={imageUrl}
           alt={title}
-          className="w-full h-full object-cover"
           loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover rounded-2xl"
         />
       </div>
 
@@ -31,8 +30,8 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ title, imageUrl, onClick })
       <div className="text-[9px] text-white font-semibold w-full text-center leading-tight whitespace-normal break-words">
         {title}
       </div>
-    </motion.div>
+    </div>
   );
 };
 
-export default PlaylistCard;
+export default memo(PlaylistCard);

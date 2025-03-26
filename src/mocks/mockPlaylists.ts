@@ -67,35 +67,35 @@ export const mockPreferredPlaylists = [
       title: "🌧️ 빗소리와 어울리는 감성 팝",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("Rainy Classical 플레이리스트 클릭"),
-      weatherType: "rainy"
+      weatherType: "rain"
     },
     {
       id: "12",
       title: "☀️ 햇살 아래에서 듣기 좋은 노래",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("Sunny Classical 플레이리스트 클릭"),
-      weatherType: "sunny"
+      weatherType: "clear"
     },
     {
       id: "13",
       title: "❄️ 눈오는 날 듣고 싶은 따듯한 노래",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("Snowy Classical 플레이리스트 클릭"),
-      weatherType: "snowy"
+      weatherType: "snow"
     },
     {
       id: "14",
       title: "☁️ 흐린 날의 로파이 힙합",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("Cloudy Classical 플레이리스트 클릭"),
-      weatherType: "cloudy"
+      weatherType: "clouds"
     },
     {
       id: "15",
       title: "⚡️ 폭풍우 속의 강렬한 비트",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("Thunder Classical 플레이리스트 클릭"),
-      weatherType: "thunder"
+      weatherType: "thunderstorm"
     },
     {
       id: "16",

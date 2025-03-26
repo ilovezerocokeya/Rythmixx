@@ -1,65 +1,82 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "../../styles/WeatherBackground.css";
 
-type WeatherBackgroundProps = {
+export type WeatherBackgroundProps = {
   weatherType: string;
-  setBackgroundType?: (type: string) => void;
+  isSpecial?: boolean;
+  onClick?: () => void;
 };
 
 const backgroundImages: Record<string, string> = {
-  rainy: "/images/rainy.webp",
-  snowy: "/images/snow.webp",
-  sunny: "/images/sunny.webp",
-  cloudy: "/images/cloud.webp",
-  thunder: "/images/flash.webp",
+  snow: "/images/snow.webp",
+  "snow-special": "/images/snow_special.webp",
+  rain: "/images/rainy.webp",
+  "rain-special": "/images/rainy_special.webp",
+  clear: "/images/sunny.webp",
+  "clear-special": "/images/sunny_special.webp",
+  clouds: "/images/cloud.webp",
+  "clouds-special": "/images/cloud_special.webp",
+  thunderstorm: "/images/flash.webp",
+  "thunderstorm-special": "/images/flash_special.webp",
   night: "/images/night.webp",
+  "night-special": "/images/night_special.webp",
   default: "/images/default.webp",
 };
 
-const WeatherBackground: React.FC<WeatherBackgroundProps> = ({ weatherType, setBackgroundType }) => {
-  // 현재 배경 이미지 상태
-  const [cachedImage, setCachedImage] = useState<string>(backgroundImages.default);
+const WeatherBackground: React.FC<WeatherBackgroundProps> = ({
+  weatherType,
+  isSpecial,
+  onClick,
+}) => {
+  const [imageSrc, setImageSrc] = useState(backgroundImages.default);
 
-  // 캐시된 이미지 목록을 useMemo로 관리
-  const loadedImages = useMemo(() => new Map<string, string>(), []);
+  // 이미지 캐시 저장소
+  const imageCache = useRef(new Map<string, string>());
+
+  // 현재 날씨에 해당하는 키와 이미지 URL 계산
+  const imageKey = useMemo(() => (isSpecial ? `${weatherType}-special` : weatherType), [weatherType, isSpecial]);
+  const newImageUrl = backgroundImages[imageKey] || backgroundImages.default;
 
   useEffect(() => {
-    const newImage = backgroundImages[weatherType] || backgroundImages.default;
+    // preload 삽입
+    if (!document.querySelector(`link[rel="preload"][href="${newImageUrl}"]`)) {
+      const preload = document.createElement("link");
+      preload.rel = "preload";
+      preload.href = newImageUrl;
+      preload.as = "image";
+      document.head.appendChild(preload);
+    }
 
-    // 이미 로드된 이미지인지 확인 후 즉시 설정
-    if (loadedImages.has(weatherType)) {
-      setCachedImage(loadedImages.get(weatherType)!);
+    // 캐시되어 있으면 즉시 적용
+    if (imageCache.current.has(imageKey)) {
+      setImageSrc(imageCache.current.get(imageKey)!);
       return;
     }
 
-    // 이미지 미리 로드
+    // 이미지 로드 후 적용
     const img = new Image();
-    img.src = newImage;
+    img.src = newImageUrl;
     img.onload = () => {
-      loadedImages.set(weatherType, newImage); // 캐시에 저장
-      setCachedImage(newImage);
+      imageCache.current.set(imageKey, newImageUrl);
+      setImageSrc(newImageUrl);
     };
-
-    // 배경 타입 변경 감지 시 setBackgroundType 호출
-    if (setBackgroundType && newImage !== cachedImage) {
-      setBackgroundType(weatherType);
-    }
-
-  }, [weatherType, cachedImage, loadedImages, setBackgroundType]);
+  }, [imageKey, newImageUrl]);
 
   return (
     <div
-      className="absolute bg-cover bg-center"
-      style={{
-        width: "320px",
-        height: "180px",
-        backgroundImage: `url(${cachedImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        zIndex: "-10",
-        transition: "background-image 0.3s ease-in-out",
-      }}
-    />
+      className="absolute w-full h-[190px] z-1 cursor-pointer"
+      onClick={onClick}
+    >
+      <img
+        src={imageSrc}
+        alt="현재 날씨 배경"
+        className="w-full h-full object-cover"
+        loading="eager"
+        decoding="async"
+        width="340"
+        height="190"
+      />
+    </div>
   );
 };
 

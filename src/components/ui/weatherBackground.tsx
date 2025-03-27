@@ -20,7 +20,6 @@ const backgroundImages: Record<string, string> = {
   "thunderstorm-special": "/images/flash_special.webp",
   night: "/images/night.webp",
   "night-special": "/images/night_special.webp",
-  default: "/images/default.webp",
 };
 
 const WeatherBackground: React.FC<WeatherBackgroundProps> = ({
@@ -28,14 +27,14 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({
   isSpecial,
   onClick,
 }) => {
-  const [imageSrc, setImageSrc] = useState(backgroundImages.default);
-
+  
   // 이미지 캐시 저장소
   const imageCache = useRef(new Map<string, string>());
-
+  
   // 현재 날씨에 해당하는 키와 이미지 URL 계산
   const imageKey = useMemo(() => (isSpecial ? `${weatherType}-special` : weatherType), [weatherType, isSpecial]);
-  const newImageUrl = backgroundImages[imageKey] || backgroundImages.default;
+  const newImageUrl = backgroundImages[imageKey];
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
     // preload 삽입
@@ -62,21 +61,25 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({
     };
   }, [imageKey, newImageUrl]);
 
+  if (!weatherType || !imageSrc) {
+    return (
+      <div className="absolute w-full h-[190px] z-1 flex items-center justify-center bg-black text-white text-sm">
+        ⏳
+      </div>
+    );
+  }
+
   return (
     <div
-      className="absolute w-full h-[190px] z-1 cursor-pointer"
+      className="absolute w-full h-[190px] z-1 cursor-pointer bg-cover bg-center transition-opacity duration-500"
       onClick={onClick}
-    >
-      <img
-        src={imageSrc}
-        alt="현재 날씨 배경"
-        className="w-full h-full object-cover"
-        loading="eager"
-        decoding="async"
-        width="340"
-        height="190"
-      />
-    </div>
+      style={{
+        backgroundImage: `url(${imageSrc})`,
+        transition: "background-image 0.3s ease-in-out",
+      }}
+
+      
+    />
   );
 };
 

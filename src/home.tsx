@@ -20,7 +20,7 @@ const Home = () => {
         </div>
 
         {/* 추천 플레이리스트 */}
-        <div className="relative flex flex-col pt-12 items-center w-full max-w-[340px] pb-14"> {/* ✅ 검색바 높이 고려해서 padding 추가 */}
+        <div className="relative flex flex-col pt-12 items-center w-full max-w-[340px] pb-14">
           <PlaylistSlider title="😊 기분에 따라 골라보세요!" playlists={preferredPlaylists} />
           <PlaylistSlider title="🎸 장르별 추천 플레이리스트" playlists={genrePlaylists} />
         </div>

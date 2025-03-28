@@ -122,3 +122,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .shared-button-google {
+    @apply bg-white min-w-[303px] px-4 py-[10px] flex items-center justify-center rounded-lg transition-transform duration-300 hover:shadow-lg;
+  }
+
+  .shared-button-kakao {
+    @apply bg-[#FEE500] min-w-[303px] px-4 py-[10px] flex items-center justify-center rounded-lg transition-transform duration-300 hover:shadow-lg;
+  }
+}

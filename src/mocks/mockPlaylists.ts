@@ -63,99 +63,106 @@ export const mockPreferredPlaylists = [
   
   export const mockWeatherPlaylists = [
     {
-      id: "7",
-      title: "☔ 빗소리와 어울리는 감성 팝",
+      id: "11",
+      title: "🌧️ 빗소리와 어울리는 감성 팝",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("Rainy Classical 플레이리스트 클릭"),
-      weatherType: "rainy"
-    },
-    {
-      id: "8",
-      title: "☀️ 햇살 아래에서 듣기 좋은 노래",
-      imageUrl: "https://via.placeholder.com/150",
-      onClick: () => alert("Sunny Classical 플레이리스트 클릭"),
-      weatherType: "sunny"
-    },
-    {
-      id: "9",
-      title: "❄️ 눈오는 날 듣고 싶은 따듯한 노래",
-      imageUrl: "https://via.placeholder.com/150",
-      onClick: () => alert("Snowy Classical 플레이리스트 클릭"),
-      weatherType: "snowy"
-    },
-    {
-      id: "10",
-      title: "☁️ 흐린 날의 로파이 힙합",
-      imageUrl: "https://via.placeholder.com/150",
-      onClick: () => alert("Cloudy Classical 플레이리스트 클릭"),
-      weatherType: "cloudy"
+      weatherType: "rain"
     },
     {
       id: "12",
-      title: "⚡ 폭풍우 속의 강렬한 비트",
+      title: "☀️ 햇살 아래에서 듣기 좋은 노래",
+      imageUrl: "https://via.placeholder.com/150",
+      onClick: () => alert("Sunny Classical 플레이리스트 클릭"),
+      weatherType: "clear"
+    },
+    {
+      id: "13",
+      title: "❄️ 눈오는 날 듣고 싶은 따듯한 노래",
+      imageUrl: "https://via.placeholder.com/150",
+      onClick: () => alert("Snowy Classical 플레이리스트 클릭"),
+      weatherType: "snow"
+    },
+    {
+      id: "14",
+      title: "☁️ 흐린 날의 로파이 힙합",
+      imageUrl: "https://via.placeholder.com/150",
+      onClick: () => alert("Cloudy Classical 플레이리스트 클릭"),
+      weatherType: "clouds"
+    },
+    {
+      id: "15",
+      title: "⚡️ 폭풍우 속의 강렬한 비트",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("Thunder Classical 플레이리스트 클릭"),
-      weatherType: "thunder"
+      weatherType: "thunderstorm"
+    },
+    {
+      id: "16",
+      title: "🌙 늦은 밤 센치해지게 만드는 노래",
+      imageUrl: "https://via.placeholder.com/150",
+      onClick: () => alert("Sentimental night 플레이리스트 클릭"),
+      weatherType: "night"
     }
   ];
 
   export const mockGenrePlaylists = [
     {
-      id: "11",
+      id: "21",
       title: "🎸 올드스쿨 락 클래식",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("올드스쿨 락 플레이리스트 클릭"),
     },
     {
-      id: "12",
+      id: "22",
       title: "🎧 감각적인 일렉트로닉",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("일렉트로닉 플레이리스트 클릭"),
     },
     {
-      id: "13",
+      id: "23",
       title: "🎵 부드러운 재즈 스탠다드",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("재즈 플레이리스트 클릭"),
     },
     {
-      id: "14",
+      id: "24",
       title: "🎤 레전드 힙합 명곡",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("힙합 플레이리스트 클릭"),
     },
     {
-      id: "15",
+      id: "25",
       title: "🎼 클래식 명작 모음",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("클래식 플레이리스트 클릭"),
     },
     {
-      id: "16",
+      id: "26",
       title: "🎶 감성적인 인디 음악",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("인디 플레이리스트 클릭"),
     },
     {
-      id: "17",
+      id: "27",
       title: "🎺 매력적인 블루스 선율",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("블루스 플레이리스트 클릭"),
     },
     {
-      id: "18",
+      id: "28",
       title: "💃 라틴 리듬을 느껴봐",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("라틴 음악 플레이리스트 클릭"),
     },
     {
-      id: "19",
+      id: "29",
       title: "🥁 강렬한 드럼과 베이스",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("드럼 & 베이스 플레이리스트 클릭"),
     },
     {
-      id: "20",
+      id: "30",
       title: "🎻 감미로운 영화 OST",
       imageUrl: "https://via.placeholder.com/150",
       onClick: () => alert("영화 OST 플레이리스트 클릭"),

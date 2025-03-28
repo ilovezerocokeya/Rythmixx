@@ -2,12 +2,10 @@ import useReverseGeocoding from '../../hooks/useReverseGeocoding';
 
 // 위치 정보 표시 컴포넌트
 const LocationDisplay = () => {
-  const city = useReverseGeocoding();
+  const city = useReverseGeocoding(); // 위치 정보 가져오기
 
   return (
-    <div
-      className="text-xs font-bold transition-colors duration-500 ease-in-out"
-    >
+    <div className="text-xs font-bold transition-colors scale-90 duration-500 ease-in-out">
       <p>{city ? city : "위치 정보를 가져오는 중..."}</p>
     </div>
   );

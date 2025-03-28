@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from "react";
-import { motion } from "framer-motion";
-import PlaylistCard from "./playlistCard";
+import React, { useCallback, useState } from "react";
+import { motion, useAnimation } from "framer-motion";
+import PlaylistCard from "../ui/playlistCard";
 
 type PlaylistProps = {
   id: string;
@@ -15,66 +15,77 @@ type PlaylistSliderProps = {
 };
 
 const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => {
-  const totalCards = playlists.length;
-  const cardsPerView = 3; // 한 번에 보이는 카드 개수
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const cardGap = 73;
+  const totalCards = playlists.length; // 전체 카드 개수
+  const cardGap = 70; // 카드 간격
+  const controls = useAnimation(); // Framer Motion 애니메이션 컨트롤
+  const [isDragging, setIsDragging] = useState(false); // 드래그 중인지 여부 상태
+  const [, setCurrentIndex] = useState(0);
 
   // 슬라이드 이동 함수
   const scroll = useCallback(
     (direction: "left" | "right") => {
+      
+      // 현재 인덱스 상태를 업데이트하면서 다음 인덱스를 계산
       setCurrentIndex((prevIndex) => {
-        if (direction === "left") {
-          return prevIndex === 0 ? totalCards - cardsPerView : prevIndex - 1;
-        } else {
-          return prevIndex >= totalCards - cardsPerView ? 0 : prevIndex + 1;
-        }
+
+        // 이동 방향에 따라 인덱스를 증가 또는 감소
+        const nextIndex =
+          direction === "left"
+            ? Math.max(0, prevIndex - 1)                         
+            : Math.min(totalCards - 1, prevIndex + 1);         
+  
+        // Framer Motion의 애니메이션 컨트롤러를 통해 슬라이드 이동 애니메이션 실행
+        controls.start({
+          x: -nextIndex * cardGap,                              // 카드 하나당 이동 거리 만큼 x축 이동
+          transition: { duration: 0.3, ease: "easeInOut" },     // 부드러운 easeInOut 전환 적용
+        });
+  
+        // 상태 업데이트를 위해 nextIndex 반환
+        return nextIndex;
       });
     },
-    [totalCards, cardsPerView]
+    [controls, totalCards]
   );
 
   return (
-    <div className="relative w-full mx-auto -mb-15 flex flex-col items-center">
-      {/* 섹션 제목 */}
-      {title && <h2 className="text-base font-bold -mb-12 text-center">{title}</h2>}
+    <div className="relative w-full mx-auto -mb-15 flex flex-col items-start">
+      {/* 섹션 제목 (왼쪽 정렬) */}
+      {title && <h2 className="text-base font-bold ml-6 -mb-12">{title}</h2>}
 
       {/* 슬라이더 전체 컨테이너 */}
       <div className="relative flex items-center justify-between w-full max-w-[320px] h-[250px] px-2">
-        
-        {/* 왼쪽 이동 버튼 */}
-        <motion.button
-          onClick={() => scroll("left")}
-          whileHover={{ scale: 1.1, opacity: 1 }}
-          className="text-white bg-gray-700 p-2 rounded-full hover:bg-gray-500 z-20"
-        >
-          {"←"}
-        </motion.button>
-
         {/* 카드 컨테이너 */}
-        <div className="relative w-[290px] h-[110px] overflow-hidden">
+        <div className="relative h-[110px] mb-8 w-full overflow-hidden">
           <motion.div
-            animate={{ x: -currentIndex * cardGap }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="flex space-x-1"
+            animate={controls}
+            drag="x" // 드래그 가능하도록 설정
+            dragConstraints={{ left: -cardGap * (totalCards - 1), right: 0 }} // 드래그 범위 설정
+            dragElastic={0.2} // 드래그 탄성 설정
+            dragMomentum={true} // 드래그 모멘텀 활성화
+            transition={{ duration: 0.3, ease: "easeInOut" }} // 애니메이션 설정
+            className="flex space-x-1 cursor-grab"
+            onDragStart={() => setIsDragging(true)} // 드래그 시작 시 상태 변경
+            onDragEnd={(event, info) => {
+              setTimeout(() => setIsDragging(false), 200); // 200ms 후 드래그 상태 해제
+
+              // 드래그 속도에 따라 자동 이동
+              if (info.velocity.x < -50) {
+                scroll("right");
+              } else if (info.velocity.x > 50) {
+                scroll("left");
+              }
+            }}
           >
+            {/* 플레이리스트 카드 렌더링 */}
             {playlists.map((playlist) => (
-              <motion.div key={playlist.id} whileHover={{ scale: 1.15 }}>
-                <PlaylistCard {...playlist} />
-              </motion.div>
+              <PlaylistCard
+                key={playlist.id}
+                {...playlist}
+                onClick={() => !isDragging && playlist.onClick()}
+              />
             ))}
           </motion.div>
         </div>
-
-        {/* 오른쪽 이동 버튼 */}
-        <motion.button
-          onClick={() => scroll("right")}
-          whileHover={{ scale: 1.1, opacity: 1 }}
-          className="text-white bg-gray-700 p-2 rounded-full hover:bg-gray-500 z-20"
-        >
-          {"→"}
-        </motion.button>
-
       </div>
     </div>
   );

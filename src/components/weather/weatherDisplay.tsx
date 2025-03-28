@@ -11,6 +11,7 @@ const WeatherDisplay = () => {
     if (timeOfDay === "night") {
       if (weather === "Rain") return "🌧️"; // 비
       if (weather === "Snow") return "❄️"; // 눈
+      if (weather === "Clouds") return "☁️🌙"; // 구름 
       return "🌙"; // 기본값: 맑은 밤
     }
 

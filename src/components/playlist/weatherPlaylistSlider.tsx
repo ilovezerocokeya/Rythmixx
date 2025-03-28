@@ -20,9 +20,6 @@ const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ nickname 
   
   usePreloadWeatherImages();
 
-  // 날씨 타입 로딩 전이라면 아무것도 렌더링하지 않음
-  if (!currentWeatherType) return null;
-
   // 현재 날씨를 기준으로 플레이리스트 슬라이드 구성
   const playlists = useMemo(() => {
 
@@ -71,12 +68,12 @@ const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ nickname 
     <div className="relative w-full h-[190px] flex items-center justify-center overflow-hidden">
       {/* 배경: 현재 슬라이드의 날씨에 따라 다르게 렌더링 */}
       {weather && (
-  <WeatherBackground
-    weatherType={playlists[currentIndex].weatherType}
-    isSpecial={playlists[currentIndex].weatherType === currentWeatherType}
-    onClick={playlists[currentIndex].onClick}
-  />
-)}
+        <WeatherBackground
+          weatherType={playlists[currentIndex].weatherType}
+          isSpecial={playlists[currentIndex].weatherType === currentWeatherType}
+          onClick={playlists[currentIndex].onClick}
+        />
+      )}
 
       {/* 인삿말 및 날씨 */}
       <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-[95%] flex items-center justify-center space-x-1 z-10">

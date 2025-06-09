@@ -11,12 +11,12 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ title, imageUrl, onClick })
   return (
     <div
       onClick={onClick}
-      className="w-[100px] h-[120px] rounded-xl cursor-pointer bg-white border border-gray-200 
+      className="w-[100px] h-[110px] rounded-xl bg-white border border-gray-200 
                  flex flex-col items-center justify-start text-center shadow-md hover:shadow-lg 
                  transition-all duration-200"
     >
       {/* 플레이리스트 이미지 */}
-      <div className="w-[88px] h-[66px] mt-3 rounded-xl overflow-hidden bg-gray-100">
+      <div className="w-[88px] h-[66px] rounded-xl overflow-hidden bg-gray-100">
         <img
           src={imageUrl}
           alt={title}

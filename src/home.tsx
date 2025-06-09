@@ -6,7 +6,7 @@ import PlaylistSlider from './components/playlist/playlistSlider';
 import WeatherPlaylistSlider from './components/playlist/weatherPlaylistSlider';
 
 import { usePlaylistStore } from './stores/usePlaylistStore';
-import { useAuthStore } from './stores/authStore';
+import { useAuthStore } from './stores/useAuthStore';
 import { useLoginModalStore } from './stores/useLoginModalStore';
 import LoginModal from './components/Login/LoginModal'; 
 

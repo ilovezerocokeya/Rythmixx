@@ -1,41 +1,78 @@
-import React from 'react'
-import { useAuthStore } from '@/stores/authStore'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { supabase } from '@/supabase/createClient';
+import { useNavigate } from 'react-router-dom';
+import Header from '@/components/ui/Header';
 
-const MyPage: React.FC = () => {
-  const user = useAuthStore((state) => state.user)
-  const logout = useAuthStore((state) => state.logout)
-  const navigate = useNavigate()
+const Mypage = () => {
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const [preference, setPreference] = useState<string[]>([]);
 
-  const handleLogout = () => {
-    logout()
-    alert('로그아웃 되었습니다.')
-    navigate('/login')
-  }
+  useEffect(() => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
 
-  if (!user) {
-    return (
-      <div className="p-4">
-        <p>로그인이 필요합니다.</p>
-      </div>
-    )
-  }
+    const fetchUserPreference = async () => {
+      const { data, error } = await supabase
+        .from('users')
+        .select('preference')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        console.error('유저 preference 불러오기 실패:', error);
+        return;
+      }
+
+      if (Array.isArray(data?.preference)) {
+        setPreference(data.preference);
+      }
+    };
+
+    fetchUserPreference();
+  }, [user]);
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h2 className="text-2xl font-bold mb-4">마이페이지</h2>
-      <p><strong>아이디:</strong> {user.id}</p>
-      <p><strong>이메일:</strong> {user.email}</p>
-      <p><strong>닉네임:</strong> {user.nickname}</p>
+    <div className="flex justify-center items-center min-h-screen bg-gray-900">
+      <div className="relative w-full max-w-[360px] min-h-[640px] bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        <Header />
 
-      <button
-        onClick={handleLogout}
-        className="mt-4 bg-red-500 text-white py-2 px-4 rounded"
-      >
-        로그아웃
-      </button>
+        <div className="px-4 pt-[70px] pb-6">
+          <h2 className="text-lg font-bold mb-4 text-blue-600">마이페이지</h2>
+
+          <div className="space-y-2 text-sm">
+            <p>
+              <strong>닉네임:</strong> {user?.nickname}
+            </p>
+            <p>
+              <strong>이메일:</strong> {user?.email}
+            </p>
+          </div>
+
+          <div className="mt-4">
+            <p className="text-sm font-semibold mb-2">🎧 선호 장르</p>
+            {preference.length > 0 ? (
+              <ul className="flex flex-wrap gap-2">
+                {preference.map((genre) => (
+                  <li
+                    key={genre}
+                    className="px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded-full"
+                  >
+                    {genre}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-gray-500">선호 장르 정보가 없습니다.</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default MyPage
+export default Mypage;

@@ -1,28 +1,23 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { motion, useAnimation } from "framer-motion";
 import WeatherBackground from "../ui/weatherBackground";
-import WeatherDisplay from "../weather/weatherDisplay";
-import LocationDisplay from "../location/locationDisplay";
 import { useCurrentWeatherType } from "@/hooks/useCurrentWeatherType";
 import usePreloadWeatherImages from "@/hooks/usePreloadWeatherImages";
 import { mockWeatherPlaylists } from "@/mocks/mockPlaylists"; 
 import { useWeatherStore } from "@/stores/useWeatherStore";
-import { useAuthStore } from "@/stores/authStore";
-import { useLoginModalStore } from "@/stores/useLoginModalStore"; // 추가
+
+import Header from "../ui/Header";
 
 
 type WeatherPlaylistSliderProps = {
   nickname: string;
 };
 
-const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ nickname }) => {
+const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = () => {
   const [currentIndex, setCurrentIndex] = useState(0); // 현재 보여지는 슬라이드 인덱스
   const controls = useAnimation(); // Framer Motion 슬라이드 전환 애니메이션 컨트롤
   const currentWeatherType = useCurrentWeatherType(); // 현재 날씨 타입 가져오기
   const { weather } = useWeatherStore();
-  const openLoginModal = useLoginModalStore((state) => state.open);
-  const user = useAuthStore((state) => state.user);
-  const isGuest = !user;
   
   usePreloadWeatherImages();
 
@@ -90,23 +85,7 @@ const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = ({ nickname 
         )}
 
         {/* 헤더 */}
-        <div className="absolute top-0 left-0 w-full px-4 py-2 flex justify-between items-center z-30 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-          <div className="flex items-center space-x-2 text-sm text-gray-800 font-semibold">
-            <span>Hello, <span className="text-blue-600">{nickname}</span></span>
-            <WeatherDisplay />
-            <LocationDisplay />
-          </div>
-          {isGuest ? (
-            <button
-              onClick={openLoginModal}
-              className="px-3 py-[4px] text-[11px] font-medium text-blue-600 border border-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition-all"
-            >
-              로그인
-            </button>
-          ) : (
-            <span className="text-[11px] text-gray-500">👋 {user.nickname}님</span>
-          )}
-        </div>
+        <Header />
 
         {/* 슬라이드 */}
         <motion.div

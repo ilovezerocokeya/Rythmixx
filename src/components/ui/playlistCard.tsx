@@ -11,25 +11,25 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({ title, imageUrl, onClick })
   return (
     <div
       onClick={onClick}
-      className="w-[90px] h-[110px] rounded-2xl cursor-pointer border border-gray-700 bg-gray-900 
-                 flex flex-col items-center justify-between text-center relative p-1 shadow-xl
-                 transition-transform duration-200 transform hover:scale-[0.95] hover:-translate-y-1 active:scale-[0.95]"
+      className="w-[100px] h-[120px] rounded-xl cursor-pointer bg-white border border-gray-200 
+                 flex flex-col items-center justify-start text-center shadow-md hover:shadow-lg 
+                 transition-all duration-200"
     >
       {/* 플레이리스트 이미지 */}
-      <div className="w-[85px] h-[65px] rounded-2xl border border-gray-700 bg-gray-800 overflow-hidden">
+      <div className="w-[88px] h-[66px] mt-3 rounded-xl overflow-hidden bg-gray-100">
         <img
           src={imageUrl}
           alt={title}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover rounded-2xl"
+          className="w-full h-full object-cover"
         />
       </div>
 
       {/* 플레이리스트 제목 */}
-      <div className="text-[9px] text-white font-semibold w-full text-center leading-tight whitespace-normal break-words">
+      <p className="text-[12px] text-gray-900 font-medium mt-2 px-2 leading-snug line-clamp-1">
         {title}
-      </div>
+      </p>
     </div>
   );
 };

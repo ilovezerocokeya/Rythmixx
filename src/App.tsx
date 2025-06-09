@@ -1,14 +1,9 @@
-import Home from './home.tsx';
-import PWABadge from './PWABadge.tsx';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './Routers';
 import './App.css';
 
 function App() {
-  return (
-    <>
-      <Home />
-      <PWABadge />
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;

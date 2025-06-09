@@ -71,7 +71,7 @@ const WeatherBackground: React.FC<WeatherBackgroundProps> = ({
 
   return (
     <div
-      className="absolute w-full h-[190px] z-1 cursor-pointer bg-cover bg-center transition-opacity duration-500"
+      className="absolute w-full h-[190px] z-1 bg-cover bg-center transition-opacity duration-500"
       onClick={onClick}
       style={{
         backgroundImage: `url(${imageSrc})`,

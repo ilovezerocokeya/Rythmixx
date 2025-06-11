@@ -120,59 +120,59 @@ const Mypage = () => {
           <h2 className="text-lg font-bold  text-blue-400 text-center">마이페이지</h2>
 
           {/* 닉네임 */}
-          <div className="border border-gray-200 rounded-xl px-4 py-3 shadow-sm space-y-1.5">
-            <p className="text-sm font-semibold text-gray-600 mb-2">닉네임</p>
-            
-            {editingNickname ? (
-              <div className="flex items-center gap-2">
-                <input
-                  autoFocus
-                  type="text"
-                  value={nicknameInput}
-                  onChange={(e) => setNicknameInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleNicknameUpdate();
-                    else if (e.key === 'Escape') {
-                      setNicknameInput(user?.nickname ?? '');
-                      setEditingNickname(false);
-                      setNicknameError(null);
-                    }
-                  }}
-                  className="flex-1 text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
-                />
-                <button
-                  onClick={handleNicknameUpdate}
-                  className="px-2 py-1 text-xs text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                >
-                  저장
-                </button>
-                <button
-                  onClick={() => {
-                    setNicknameInput(user?.nickname ?? '');
-                    setEditingNickname(false);
-                    setNicknameError(null);
-                  }}
-                  className="px-2 py-1 text-xs text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100"
-                >
-                  취소
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1">
-                <p className="text-sm font-medium text-gray-900">{user?.nickname}</p>
-                <button
-                  onClick={() => setEditingNickname(true)}
-                  className="text-sm text-blue-600 hover:text-blue-700"
-                >
-                  ✏️
-                </button>
-              </div>
-            )}
-          
-            {nicknameError && (
-              <p className="text-xs text-red-500 mt-1">{nicknameError}</p>
-            )}
-          </div>
+<div className="border border-gray-200 rounded-xl px-4 py-3 shadow-sm space-y-1.5">
+  <p className="text-sm font-semibold text-gray-600 mb-2">닉네임</p>
+
+  {editingNickname ? (
+    <div className="flex items-center gap-2">
+      <input
+        autoFocus
+        type="text"
+        value={nicknameInput}
+        onChange={(e) => setNicknameInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') handleNicknameUpdate();
+          else if (e.key === 'Escape') {
+            setNicknameInput(user?.nickname ?? '');
+            setEditingNickname(false);
+            setNicknameError(null);
+          }
+        }}
+        className="flex-1 text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+      />
+      <button
+        onClick={handleNicknameUpdate}
+        className="px-2 py-1 text-xs text-white bg-blue-600 rounded-md hover:bg-blue-700"
+      >
+        저장
+      </button>
+      <button
+        onClick={() => {
+          setNicknameInput(user?.nickname ?? '');
+          setEditingNickname(false);
+          setNicknameError(null);
+        }}
+        className="px-2 py-1 text-xs text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100"
+      >
+        취소
+      </button>
+    </div>
+  ) : (
+    <div className="flex items-center gap-1">
+      <p className="text-sm font-medium text-gray-900">{user?.nickname}</p>
+      <button
+        onClick={() => setEditingNickname(true)}
+        className="text-sm text-blue-600 hover:text-blue-700"
+      >
+        ✏️
+      </button>
+    </div>
+  )}
+
+  {nicknameError && (
+    <p className="text-xs text-red-500 mt-1">{nicknameError}</p>
+  )}
+</div>
 
           {/* 선호 장르 */}
           <div className="border border-gray-200 rounded-xl px-4 py-3 shadow-sm">

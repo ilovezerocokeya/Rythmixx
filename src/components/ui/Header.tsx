@@ -1,13 +1,14 @@
 import WeatherDisplay from '../weather/weatherDisplay';
 import { Link } from 'react-router-dom';
-import LocationDisplay from '../location/locationDisplay';
-import { useLoginModalStore } from '@/stores/useLoginModalStore';
+import { useModalStore } from '@/stores/useModalStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { supabase } from '@/supabase/createClient';
+import { useState } from 'react';
 
 const Header = () => {
-  const openLoginModal = useLoginModalStore((state) => state.open);
+  const openModal = useModalStore((state) => state.open);
   const { user, logout } = useAuthStore();
+  const [isHovered, setIsHovered] = useState(false);
   const isGuest = !user;
 
   const handleLogout = async () => {
@@ -21,18 +22,25 @@ const Header = () => {
 
   return (
     <div className="absolute top-0 left-0 w-full px-4 py-2 flex justify-between items-center z-30 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-      <div className="flex items-center space-x-2 text-sm text-gray-800 font-semibold">
-        <span>
-          Hello,{' '}
-          <span className="text-blue-600">
-            {user?.nickname || '게스트'}
-          </span>
-        </span>
+      <div className="flex items-center space-x-3">
+        {/* 로고 */}
+        <Link to="/" className="text-base font-bold text-blue-600 hover: cursor-pointer">
+          Rythmixx
+        </Link>
+
+        {/* 날씨 */}
         <WeatherDisplay />
-        <LocationDisplay />
       </div>
 
       <div className="flex items-center space-x-2">
+        {/* 검색 버튼 (항상 표시) */}
+        <button
+          onClick={() => openModal('search')}
+          className="px-3 py-[4px] text-[11px] font-medium text-gray-700 border border-gray-200 rounded-full hover:bg-gray-100 transition-all"
+        >
+          🔍
+        </button>
+
         {!isGuest && (
           <Link
             to="/mypage"
@@ -42,23 +50,26 @@ const Header = () => {
           </Link>
         )}
 
-      {isGuest ? (
-        <button
-          onClick={openLoginModal}
-          className="px-3 py-[4px] text-[11px] font-medium text-blue-600 border border-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition-all"
-        >
-          로그인
-        </button>
-      ) : (
-        <button
-          onClick={handleLogout}
-          className="px-3 py-[4px] text-[11px] font-medium text-gray-600 border border-gray-300 rounded-full hover:bg-gray-100 transition-all"
-        >
-          로그아웃
-        </button>
-      )}
+        {/* 로그인 / 로그아웃 버튼 */}
+        {isGuest ? (
+          <button
+            onClick={() => openModal('login')}
+            className="px-3 py-[4px] text-[11px] font-medium text-blue-600 border border-blue-600 rounded-full hover:bg-blue-600 hover:text-white transition-all"
+          >
+            로그인
+          </button>
+        ) : (
+          <button
+            onClick={handleLogout}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="px-3 py-[4px] text-[11px] font-medium text-gray-600 border border-gray-300 rounded-full hover:bg-gray-100 transition-all"
+          >
+            {isHovered ? '로그아웃' : user.nickname}
+          </button>
+        )}
+      </div>
     </div>
-   </div>
   );
 };
 

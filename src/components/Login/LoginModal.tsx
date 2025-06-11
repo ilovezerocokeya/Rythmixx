@@ -1,8 +1,8 @@
 import { supabase } from '@/supabase/createClient';
-import { useLoginModalStore } from '@/stores/useLoginModalStore';
+import { useModalStore } from '@/stores/useModalStore';
 
 const LoginModal = () => {
-  const close = useLoginModalStore((state) => state.close);
+  const close = useModalStore((state) => state.close);
 
   const handleSocialLogin = async (provider: 'google' | 'kakao') => {
     const { error } = await supabase.auth.signInWithOAuth({

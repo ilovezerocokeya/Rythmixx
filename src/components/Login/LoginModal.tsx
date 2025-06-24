@@ -5,15 +5,33 @@ const LoginModal = () => {
   const close = useModalStore((state) => state.close);
 
   const handleSocialLogin = async (provider: 'google' | 'kakao') => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/Callback`,
-      },
-    });
+    console.log(`🟡 [START] handleSocialLogin 호출 - provider: ${provider}`);
 
-    if (error) {
-      alert(`${provider} 로그인 실패`);
+    try {
+      console.log('🔵 Supabase OAuth 요청 준비 중...');
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: 'http://localhost:5173/auth/callback',
+          queryParams: {
+            prompt: 'select_account',
+          },
+        },
+      });
+
+      console.log('🟢 Supabase 응답 수신 완료');
+      console.log('📦 data:', data);
+
+      if (error) {
+        console.error('❌ OAuth 로그인 에러:', error.message);
+        alert(`${provider} 로그인 실패: ${error.message}`);
+        return;
+      }
+
+      console.log('✅ [SUCCESS] OAuth 로그인 요청 성공 - 브라우저가 자동으로 리디렉션됩니다');
+    } catch (err) {
+      console.error('🔥 [UNEXPECTED ERROR] 로그인 중 예외 발생:', err);
     }
   };
 
@@ -27,10 +45,11 @@ const LoginModal = () => {
     >
       <div
         onClick={stopPropagation}
-        className="bg-white w-[320px] px-6 py-8 rounded-2xl shadow-xl border border-gray-200 space-y-6 relative"
+        className="bg-white w-[320px] px-6 py-8 rounded-2xl shadow-xl border border-gray-200 space-y-2 relative"
       >
         <button
           onClick={close}
+          aria-label="모달 닫기"
           className="absolute top-3 right-4 text-gray-400 hover:text-black text-xl font-bold"
         >
           ×

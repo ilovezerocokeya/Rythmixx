@@ -11,7 +11,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 const Mypage = () => {
   const { user, login } = useAuthStore();
   const navigate = useNavigate();
-  const [preference, setPreference] = useState<string[]>([]);
   const [savedPlaylists, setSavedPlaylists] = useState<
     { id: string; title: string; thumbnail_url: string; channel_title: string }[]
   >([]);
@@ -24,30 +23,6 @@ const Mypage = () => {
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchUserPreference = async () => {
-      const { data, error } = await supabase
-        .from('users')
-        .select('preference')
-        .eq('user_id', user.id)
-        .single();
-
-      const raw = data?.preference;
-      if (error) return console.error('유저 preference 불러오기 실패:', error);
-
-      try {
-        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-        setPreference(Array.isArray(parsed) ? parsed : []);
-      } catch {
-        setPreference([]);
-      }
-    };
-
-    fetchUserPreference();
-  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -105,7 +80,11 @@ const Mypage = () => {
       return;
     }
 
-    login({ id: user.id, email: user.email, nickname: trimmed });
+    login({ 
+      id: user.id, 
+      email: user.email, 
+      nickname: trimmed,
+    });
     setEditingNickname(false);
     setNicknameError(null);
     alert('닉네임이 변경되었습니다!');
@@ -120,76 +99,57 @@ const Mypage = () => {
           <h2 className="text-lg font-bold  text-blue-400 text-center">마이페이지</h2>
 
           {/* 닉네임 */}
-<div className="border border-gray-200 rounded-xl px-4 py-3 shadow-sm space-y-1.5">
-  <p className="text-sm font-semibold text-gray-600 mb-2">닉네임</p>
+          <div className="border border-gray-200 rounded-xl px-4 py-3 shadow-sm space-y-1.5">
+            <p className="text-sm font-semibold text-gray-600 mb-2">닉네임</p>
 
-  {editingNickname ? (
-    <div className="flex items-center gap-2">
-      <input
-        autoFocus
-        type="text"
-        value={nicknameInput}
-        onChange={(e) => setNicknameInput(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') handleNicknameUpdate();
-          else if (e.key === 'Escape') {
-            setNicknameInput(user?.nickname ?? '');
-            setEditingNickname(false);
-            setNicknameError(null);
-          }
-        }}
-        className="flex-1 text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
-      />
-      <button
-        onClick={handleNicknameUpdate}
-        className="px-2 py-1 text-xs text-white bg-blue-600 rounded-md hover:bg-blue-700"
-      >
-        저장
-      </button>
-      <button
-        onClick={() => {
-          setNicknameInput(user?.nickname ?? '');
-          setEditingNickname(false);
-          setNicknameError(null);
-        }}
-        className="px-2 py-1 text-xs text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100"
-      >
-        취소
-      </button>
-    </div>
-  ) : (
-    <div className="flex items-center gap-1">
-      <p className="text-sm font-medium text-gray-900">{user?.nickname}</p>
-      <button
-        onClick={() => setEditingNickname(true)}
-        className="text-sm text-blue-600 hover:text-blue-700"
-      >
-        ✏️
-      </button>
-    </div>
-  )}
-
-  {nicknameError && (
-    <p className="text-xs text-red-500 mt-1">{nicknameError}</p>
-  )}
-</div>
-
-          {/* 선호 장르 */}
-          <div className="border border-gray-200 rounded-xl px-4 py-3 shadow-sm">
-            <p className="text-sm font-semibold text-gray-600 mb-2">🎧 선호 장르</p>
-            {preference.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {preference.map((genre) => (
-                  <span
-                    key={genre}
-                    className="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full"
-                  >
-                    {genre}
-                  </span>
-                ))}
+            {editingNickname ? (
+              <div className="flex items-center gap-2">
+                <input
+                  autoFocus
+                  type="text"
+                  value={nicknameInput}
+                  onChange={(e) => setNicknameInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleNicknameUpdate();
+                    else if (e.key === 'Escape') {
+                      setNicknameInput(user?.nickname ?? '');
+                      setEditingNickname(false);
+                      setNicknameError(null);
+                    }
+                  }}
+                  className="flex-1 text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                <button
+                  onClick={handleNicknameUpdate}
+                  className="px-2 py-1 text-xs text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                >
+                  저장
+                </button>
+                <button
+                  onClick={() => {
+                    setNicknameInput(user?.nickname ?? '');
+                    setEditingNickname(false);
+                    setNicknameError(null);
+                  }}
+                  className="px-2 py-1 text-xs text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100"
+                >
+                  취소
+                </button>
               </div>
             ) : (
-              <p className="text-xs text-gray-400">선호 장르 정보가 없습니다.</p>
+              <div className="flex items-center gap-1">
+                <p className="text-sm font-medium text-gray-900">{user?.nickname}</p>
+                <button
+                  onClick={() => setEditingNickname(true)}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  ✏️
+                </button>
+              </div>
+            )}
+
+            {nicknameError && (
+              <p className="text-xs text-red-500 mt-1">{nicknameError}</p>
             )}
           </div>
 

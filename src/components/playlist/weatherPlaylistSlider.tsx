@@ -8,12 +8,7 @@ import { useWeatherStore } from "@/stores/useWeatherStore";
 
 import Header from "../ui/Header";
 
-
-type WeatherPlaylistSliderProps = {
-  nickname: string;
-};
-
-const WeatherPlaylistSlider: React.FC<WeatherPlaylistSliderProps> = () => {
+const WeatherPlaylistSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0); // 현재 보여지는 슬라이드 인덱스
   const controls = useAnimation(); // Framer Motion 슬라이드 전환 애니메이션 컨트롤
   const currentWeatherType = useCurrentWeatherType(); // 현재 날씨 타입 가져오기

@@ -21,7 +21,7 @@ type PlaylistState = {
   preferredPlaylists: Playlist[];
   weatherPlaylists: Playlist[];
   genrePlaylists: Playlist[];
-  allPlaylists: Playlist[]; // ✅ 추가됨
+  allPlaylists: Playlist[]; 
   setPlaylists: (type: PlaylistCategory, playlists: Playlist[]) => void;
   setAllPlaylists: (playlists: Playlist[]) => void;
 };

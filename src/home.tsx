@@ -4,8 +4,8 @@ import { useEffect } from 'react';
 
 import useGeolocation from './hooks/useGeolocation';
 import useWeather from './hooks/useWeather';
-import PlaylistSlider from './components/playlist/playlistSlider';
-import WeatherPlaylistSlider from './components/playlist/weatherPlaylistSlider';
+import PlaylistSlider from './components/playlist/PlaylistSlider';
+import WeatherPlaylistSlider from './components/playlist/WeatherPlaylistSlider';
 
 import { usePlaylistStore } from './stores/usePlaylistStore';
 import { useAuthStore } from './stores/useAuthStore';

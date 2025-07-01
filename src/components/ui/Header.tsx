@@ -1,4 +1,4 @@
-import WeatherDisplay from '../weather/weatherDisplay';
+import WeatherDisplay from '../weather/WeatherDisplay';
 import { Link } from 'react-router-dom';
 import { useModalStore } from '@/stores/useModalStore';
 import { useAuthStore } from '@/stores/useAuthStore';

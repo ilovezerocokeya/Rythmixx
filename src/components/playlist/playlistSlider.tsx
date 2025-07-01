@@ -1,12 +1,13 @@
 import React, { useCallback, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
-import PlaylistCard from "./playlistCard";
+import CurationVideoCard from "../ui/CurationVideoCard";
 
 type PlaylistProps = {
   id: string;
   title: string;
   imageUrl: string;
-  onClick: () => void;
+  onClick?: () => void;
+  onDelete?: () => void;
 };
 
 type PlaylistSliderProps = {
@@ -15,32 +16,25 @@ type PlaylistSliderProps = {
 };
 
 const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => {
-  const totalCards = playlists.length; // 전체 카드 개수
-  const cardGap = 70; // 카드 간격
-  const controls = useAnimation(); // Framer Motion 애니메이션 컨트롤
-  const [isDragging, setIsDragging] = useState(false); // 드래그 중인지 여부 상태
+  const totalCards = playlists.length;
+  const cardGap = 70;
+  const controls = useAnimation();
+  const [isDragging, setIsDragging] = useState(false);
   const [, setCurrentIndex] = useState(0);
 
-  // 슬라이드 이동 함수
   const scroll = useCallback(
     (direction: "left" | "right") => {
-      
-      // 현재 인덱스 상태를 업데이트하면서 다음 인덱스를 계산
       setCurrentIndex((prevIndex) => {
-
-        // 이동 방향에 따라 인덱스를 증가 또는 감소
         const nextIndex =
           direction === "left"
-            ? Math.max(0, prevIndex - 1)                         
-            : Math.min(totalCards - 1, prevIndex + 1);         
-  
-        // Framer Motion의 애니메이션 컨트롤러를 통해 슬라이드 이동 애니메이션 실행
+            ? Math.max(0, prevIndex - 1)
+            : Math.min(totalCards - 1, prevIndex + 1);
+
         controls.start({
-          x: -nextIndex * cardGap,                              // 카드 하나당 이동 거리 만큼 x축 이동
-          transition: { duration: 0.3, ease: "easeInOut" },     // 부드러운 easeInOut 전환 적용
+          x: -nextIndex * cardGap,
+          transition: { duration: 0.3, ease: "easeInOut" },
         });
-  
-        // 상태 업데이트를 위해 nextIndex 반환
+
         return nextIndex;
       });
     },
@@ -49,16 +43,14 @@ const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => 
 
   return (
     <div className="w-full flex flex-col gap-2">
-      {/* 섹션 제목 */}
       {title && (
         <h2 className="text-sm font-semibold text-gray-900 px-4">
           {title}
         </h2>
       )}
 
-      {/* 카드 슬라이더 */}
-      <div className="relative w-full px-4 py-3 rounded-xl bg-white border border-gray-200 shadow-sm">
-        <div className="relative w-full h-[115px] overflow-hidden">
+      <div className="relative w-full px-1 py-3 rounded-xl bg-white border border-gray-200 shadow-sm">
+        <div className="relative w-full h-[190px] overflow-hidden pr-8">
           <motion.div
             animate={controls}
             drag="x"
@@ -75,10 +67,13 @@ const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => 
             }}
           >
             {playlists.map((playlist) => (
-              <PlaylistCard
+              <CurationVideoCard
                 key={playlist.id}
-                {...playlist}
-                onClick={() => !isDragging && playlist.onClick()}
+                id={playlist.id}
+                title={playlist.title}
+                imageUrl={playlist.imageUrl}
+                onClick={() => !isDragging && playlist.onClick?.()}
+                onDelete={playlist.onDelete}
               />
             ))}
           </motion.div>

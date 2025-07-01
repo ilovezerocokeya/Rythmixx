@@ -3,6 +3,7 @@ import Home from '@/home';
 import SignupPage from '@/pages/SignupPage';
 import Callback from '@/pages/auth/Callback';
 import Mypage from '@/pages/MyPage';
+import EditCurationPage from '@/pages/EditCuration';
 
 export const router = createBrowserRouter([
   {
@@ -20,5 +21,9 @@ export const router = createBrowserRouter([
   {
     path: '/mypage',
     element: <Mypage />,
+  },
+  {
+    path: '/edit',
+    element: <EditCurationPage />,
   },
 ]);

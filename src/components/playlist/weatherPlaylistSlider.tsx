@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { motion, useAnimation } from "framer-motion";
-import WeatherBackground from "../weather/weatherBackground";
+import WeatherBackground from "../weather/WeatherBackground";
 import { useCurrentWeatherType } from "@/hooks/useCurrentWeatherType";
 import usePreloadWeatherImages from "@/hooks/usePreloadWeatherImages";
 import { mockWeatherPlaylists } from "@/mocks/mockPlaylists"; 

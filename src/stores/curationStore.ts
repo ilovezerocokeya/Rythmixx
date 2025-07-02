@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 
-/* ----------------------------- 🔷 타입 정의 ----------------------------- */
 export type CategoryType = 'mood' | 'weather' | 'genre' | 'situation' | 'place';
 
 export type CurationVideo = {
@@ -11,7 +10,7 @@ export type CurationVideo = {
   youtube_url: string;
 };
 
-/* ----------------------------- 🔷 상태 타입 ----------------------------- */
+// 상태 인터페이스
 interface CurationState {
   curationVideosByCategory: Record<CategoryType, CurationVideo[]>;
 
@@ -22,7 +21,7 @@ interface CurationState {
   resetCurationVideos: () => void;
 }
 
-/* ----------------------------- 🔷 초기화 함수 ----------------------------- */
+// 카테고리별 빈 배열로 초기화된 구조 반환
 const createInitialCategories = (): Record<CategoryType, CurationVideo[]> => ({
   mood: [],
   weather: [],
@@ -31,10 +30,12 @@ const createInitialCategories = (): Record<CategoryType, CurationVideo[]> => ({
   place: [],
 });
 
-/* ----------------------------- 🔷 Zustand 스토어 ----------------------------- */
-export const useCurationStore = create<CurationState>((set) => ({
-  curationVideosByCategory: createInitialCategories(),
 
+export const useCurationStore = create<CurationState>((set) => ({
+  
+  curationVideosByCategory: createInitialCategories(), // 초기 상태 설정
+
+  // 특정 카테고리에 비디오 추가
   addCurationVideo: (category, video) =>
     set((state) => ({
       curationVideosByCategory: {
@@ -43,6 +44,7 @@ export const useCurationStore = create<CurationState>((set) => ({
       },
     })),
 
+  // 특정 카테고리에서 비디오 제거
   removeCurationVideo: (category, videoId) =>
     set((state) => ({
       curationVideosByCategory: {
@@ -53,6 +55,7 @@ export const useCurationStore = create<CurationState>((set) => ({
       },
     })),
 
+  // 특정 카테고리에 비디오 배열 통째로 설정
   setCurationVideos: (category, videos) =>
     set((state) => ({
       curationVideosByCategory: {
@@ -61,6 +64,7 @@ export const useCurationStore = create<CurationState>((set) => ({
       },
     })),
 
+  // 특정 카테고리의 비디오 순서 변경
   reorderCurationVideos: (category, newVideos) =>
     set((state) => ({
       curationVideosByCategory: {
@@ -69,6 +73,7 @@ export const useCurationStore = create<CurationState>((set) => ({
       },
     })),
 
+  // 모든 카테고리 초기화
   resetCurationVideos: () =>
     set(() => ({
       curationVideosByCategory: createInitialCategories(),

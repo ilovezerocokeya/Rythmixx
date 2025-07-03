@@ -6,8 +6,8 @@ import { useCurationStore, CategoryType, CurationVideo } from '@/stores/curation
 import { deleteCurationVideo, fetchCurationVideosByCategory } from '@/components/apis/supabaseCuration';
 import { extractVideoId } from '@/utils/youtube';
 import { supabase } from '@/supabase/createClient';
-import { Link } from 'react-router-dom';
-import PlaylistSlider from '@/components/playlist/PlaylistSlider';
+import { useNavigate } from 'react-router-dom';
+import PlaylistSlider from '@/components/slider/PlaylistSlider';
 
 type ExtendedCategoryType = CategoryType | 'all';
 
@@ -23,6 +23,7 @@ const CATEGORY_LABELS: Record<ExtendedCategoryType, string> = {
 const EditCurationPage = () => {
   const [videoId, setVideoId] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ExtendedCategoryType>('mood');
+  const navigate = useNavigate();
 
   const {
     curationVideosByCategory,
@@ -30,6 +31,21 @@ const EditCurationPage = () => {
     removeCurationVideo,
     setCurationVideos,
   } = useCurationStore();
+
+  // 컴포넌트 마운트 시 관리자 계정만 접근 허용, 아니면 홈으로 리디렉션
+  useEffect(() => {
+  const checkAdmin = async () => {
+    const { data, error } = await supabase.auth.getUser();
+    const email = data?.user?.email;
+
+    if (error || email !== 'ilovezerocokeya@gmail.com') {
+      alert('접근 권한이 없습니다.');
+      navigate('/');
+    }
+  };
+
+  checkAdmin();
+}, []);
 
   // 선택된 카테고리에 따라 해당 카테고리의 영상 목록을 Supabase에서 불러오기
   useEffect(() => {
@@ -191,20 +207,26 @@ const EditCurationPage = () => {
 
   return (
     <main className="flex items-center justify-center w-full min-h-screen bg-gray-900 px-4">
-      <div className="relative w-full max-w-[400px] h-[680px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
+      <div className="relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
 
         {/* 상단 헤더 */}
-        <div className="flex items-center justify-between px-6 pt-6 shrink-0">
-          <Link to="/" className="text-base font-bold text-blue-600 hover:underline">
+        <div className="relative flex items-center justify-between px-6 pt-6 shrink-0">
+          {/* 홈 이동 버튼 */}
+          <button
+            onClick={() => navigate('/')}
+            className="text-base font-bold text-blue-600 hover:text-blue-700"
+          >
             Rythmixx
-          </Link>
-          <h1 className="text-base font-semibold text-gray-800 text-center w-full -ml-14">
+          </button>
+
+          {/* 중앙 타이틀 (이벤트 방해 방지) */}
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-800 text-center pointer-events-none">
             큐레이션 관리자
           </h1>
         </div>
 
         {/* 본문 영역 */}
-        <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-4">
+        <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-4 scroll-container">
 
           {/* 카테고리 선택 드롭다운 */}
           <div className="space-y-3">

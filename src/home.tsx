@@ -4,15 +4,16 @@ import { useEffect } from 'react';
 
 import useGeolocation from './hooks/useGeolocation';
 import useWeather from './hooks/useWeather';
-import PlaylistSlider from './components/playlist/PlaylistSlider';
-import WeatherPlaylistSlider from './components/playlist/WeatherPlaylistSlider';
+import PlaylistSlider from './components/slider/PlaylistSlider';
+// import WeatherPlaylistSlider from './components/playlist/WeatherPlaylistSlider';
 
 import { usePlaylistStore } from './stores/usePlaylistStore';
 import { useAuthStore } from './stores/useAuthStore';
 import { useModalStore } from './stores/useModalStore';
 
-import LoginModal from './components/Login/LoginModal';
-import SearchModal from './components/Search/SearchModal';
+import LoginModal from './components/login/LoginModal';
+import SearchModal from './components/search/SearchModal';
+import Header from './components/ui/Header';
 
 const Home = () => {
 
@@ -35,21 +36,35 @@ const Home = () => {
 
   return (
     <main className="flex justify-center items-center min-h-screen bg-gray-900">
-      <section className="relative w-full max-w-[360px] min-h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
+      <section className="scroll-container relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 overflow-y-auto">
         
-        {/* 날씨 기반 추천 */}
-        <WeatherPlaylistSlider />
+        {/* 헤더 */}
+        <Header />
 
-        {/* 추천 섹션 */}
+        {/* 이번 주 추천 플레이리스트 */}
+        {/* <WeatherPlaylistSlider /> */}
+
+        {/* 카테고리별 추천 플레이리스트 섹션 */}
         <div className="flex flex-col gap-6 px-4 py-6">
+         {preferredPlaylists.length > 0 && (
           <PlaylistSlider
             title="😊 기분에 따라 골라보세요!"
             playlists={preferredPlaylists}
           />
+        )}
+    
+        {genrePlaylists.length > 0 && (
           <PlaylistSlider
             title="🎸 장르별 추천 플레이리스트"
             playlists={genrePlaylists}
           />
+        )}
+      
+          <PlaylistSlider
+            title="🎸 장르별 추천 플레이리스트"
+            playlists={genrePlaylists}
+          />
+        
         </div>
 
         {/* 모달 */}

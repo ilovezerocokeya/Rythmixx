@@ -5,31 +5,26 @@ import { useEffect } from 'react';
 import useGeolocation from './hooks/useGeolocation';
 import useWeather from './hooks/useWeather';
 import PlaylistSlider from './components/slider/PlaylistSlider';
-// import WeatherPlaylistSlider from './components/playlist/WeatherPlaylistSlider';
-
-import { usePlaylistStore } from './stores/usePlaylistStore';
+import MainCurationPlaylistSlider from './components/slider/MainCurationPlaylistSlider';
+import { useCurationStore } from './stores/useCurationStore';
 import { useAuthStore } from './stores/useAuthStore';
 import { useModalStore } from './stores/useModalStore';
-
 import LoginModal from './components/login/LoginModal';
 import SearchModal from './components/search/SearchModal';
 import Header from './components/ui/Header';
+import { CATEGORY_LABELS, CATEGORY_ORDER } from './constants/curation'; 
 
 const Home = () => {
+  const { curationVideosByCategory } = useCurationStore();
+  const { restoreUser } = useAuthStore();
 
-  const { preferredPlaylists, genrePlaylists } = usePlaylistStore(); // 추천 플레이리스트 상태 가져오기
-  const { restoreUser } = useAuthStore(); // 로컬 저장소에 저장된 유저 정보 복원
-  
-  // 현재 열린 모달 상태 확인
   const modal = useModalStore((state) => state.openModal);
   const isLoginModalOpen = modal === 'login';
   const isSearchModalOpen = modal === 'search';
 
-  // 현재 위치 및 날씨 정보 가져오기
   useGeolocation();
   useWeather();
 
-  // 최초 진입 시 유저 상태 복원
   useEffect(() => {
     restoreUser();
   }, [restoreUser]);
@@ -41,30 +36,38 @@ const Home = () => {
         {/* 헤더 */}
         <Header />
 
-        {/* 이번 주 추천 플레이리스트 */}
-        {/* <WeatherPlaylistSlider /> */}
+        {/* 플레이리스트 렌더링 */}
+        <div className="flex flex-col gap-6 px-4 pt-12 py-6">
 
-        {/* 카테고리별 추천 플레이리스트 섹션 */}
-        <div className="flex flex-col gap-6 px-4 py-6">
-         {preferredPlaylists.length > 0 && (
-          <PlaylistSlider
-            title="😊 기분에 따라 골라보세요!"
-            playlists={preferredPlaylists}
-          />
-        )}
-    
-        {genrePlaylists.length > 0 && (
-          <PlaylistSlider
-            title="🎸 장르별 추천 플레이리스트"
-            playlists={genrePlaylists}
-          />
-        )}
-      
-          <PlaylistSlider
-            title="🎸 장르별 추천 플레이리스트"
-            playlists={genrePlaylists}
-          />
-        
+          {CATEGORY_ORDER.map((category) => {
+            const playlists = curationVideosByCategory[category];
+            if (!playlists || playlists.length === 0) return null;
+
+            const formattedPlaylists = playlists.map((item) => ({
+              id: item.id,
+              title: item.title,
+              imageUrl: item.imageUrl,
+              onClick: () => window.open(item.youtube_url, '_blank'),
+            }));
+
+            if (category === 'thisWeek') {
+              return (
+                <MainCurationPlaylistSlider
+                  key={category}
+                  title="🎯 이번 주 추천 플리"
+                  playlists={formattedPlaylists}
+                />
+              );
+            }
+
+            return (
+              <PlaylistSlider
+                key={category}
+                title={`💿 ${CATEGORY_LABELS[category]} 추천`}
+                playlists={formattedPlaylists}
+              />
+            );
+          })}
         </div>
 
         {/* 모달 */}

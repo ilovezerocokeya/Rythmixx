@@ -89,6 +89,7 @@ const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => 
                 imageUrl={playlist.imageUrl}
                 onClick={() => !isDragging && playlist.onClick?.()} // 드래그 중이 아닐 때만 클릭 허용
                 onDelete={playlist.onDelete}
+                variant="small"
               />
             ))}
           </motion.div>

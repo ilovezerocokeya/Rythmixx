@@ -5,7 +5,7 @@ import { usePlaylistStore } from '@/stores/usePlaylistStore';
 import { useSearchStore } from '@/stores/useSearchStore';
 import { useModalStore } from '@/stores/useModalStore';
 import { useDebounce } from '@/hooks/useDebounce';
-import { HighlightedText } from '@/components/Search/HighlightedText';
+import { HighlightedText } from '@/components/search/HighlightedText';
 
 const SearchModal = () => {
   const { keyword, setKeyword, clearKeyword } = useSearchStore();

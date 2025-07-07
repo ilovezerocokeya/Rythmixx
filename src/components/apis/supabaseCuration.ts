@@ -1,4 +1,4 @@
-import { CategoryType } from "@/stores/curationStore";
+import { CategoryType } from "@/stores/useCurationStore";
 import { supabase } from "@/supabase/createClient";
 
 // 큐레이션에 사용할 비디오 타입 정의 (user_id 제외)

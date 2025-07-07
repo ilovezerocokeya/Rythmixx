@@ -1,9 +1,12 @@
+import clsx from "clsx";
+
 type CurationVideoCardProps = {
   id: string;
   title: string;
   imageUrl: string;
   onClick?: () => void;
   onDelete?: () => void;
+  variant?: "small" | "large";
 };
 
 const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
@@ -11,23 +14,36 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
   imageUrl,
   onClick,
   onDelete,
+  variant = "small",
 }) => {
   return (
     <div
-      // 카드 하나의 전체 컨테이너
-      className="relative w-[180px] flex-shrink-0 snap-start bg-white rounded-lg shadow p-2"
+      className={clsx(
+        "relative flex-shrink-0 snap-start bg-white rounded-lg shadow p-2",
+        variant === "small"
+          ? "w-[180px]"         // 기본 카드 크기
+          : "w-[340px] h-[240px]" // large 카드일 경우 크기 증가
+      )}
       onClick={onClick}
     >
       {/* 썸네일 이미지 */}
       <img
         src={imageUrl}
         alt={title}
-        className="w-full h-[120px] object-cover rounded-md select-none"
+        className={clsx(
+          "w-full object-cover rounded-md select-none",
+          variant === "small" ? "h-[120px]" : "h-[180px]"
+        )}
         draggable={false}
       />
 
       {/* 플레이리스트 제목 */}
-      <div className="mt-2 text-[13px] font-medium leading-snug line-clamp-2 h-[40px]">
+      <div
+        className={clsx(
+          "mt-2 text-[13px] font-medium leading-snug line-clamp-2 text-center",
+          variant === "small" ? "h-[40px]" : "px-4"
+        )}
+      >
         {title}
       </div>
 

@@ -1,20 +1,24 @@
 import React, { useState, useCallback } from "react";
 import { motion, useAnimation } from "framer-motion";
+import CurationVideoCard from "../ui/CurationVideoCard"; 
 
 type Playlist = {
   id: string;
   title: string;
+  imageUrl: string;
   onClick?: () => void;
+  onDelete?: () => void; // 삭제 버튼도 받을 수 있도록 확장
 };
 
 interface MainCurationPlaylistSliderProps {
-  playlists: Playlist[]; // 외부에서 주입
+  playlists: Playlist[];
+  title?: string;
 }
 
-const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({ playlists }) => {
+const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({ playlists, title }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false); 
   const controls = useAnimation();
-
   const totalSlides = playlists.length;
 
   const scroll = useCallback(
@@ -43,20 +47,26 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
 
   return (
     <div className="w-full">
+      {/* title 표시 */}
+      {title && (
+      <div className="px-4 py-3 text-base font-semibold text-gray-800">
+        {title}
+      </div>
+      )}
+
       <div className="w-full flex flex-col rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-white">
-
         {/* 슬라이드 영역 */}
-        <div className="relative w-full h-[240px]">
-
-          {/* 슬라이드 */}
+        <div className="relative w-full h-[260px]">
           <motion.div
             animate={controls}
-            className="flex w-full h-full pt-10 pb-12"
+            className="flex w-full h-full"
             drag="x"
             dragConstraints={{ left: -100 * (totalSlides - 1), right: 0 }}
             dragElastic={0.2}
             dragMomentum={true}
+            onDragStart={() => setIsDragging(true)}
             onDragEnd={(e, info) => {
+              setTimeout(() => setIsDragging(false), 150);
               if (info.velocity.x < -50) scroll("right");
               else if (info.velocity.x > 50) scroll("left");
             }}
@@ -65,10 +75,15 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
               <motion.div
                 key={playlist.id}
                 className="w-full min-w-full h-full flex items-center justify-center"
-                onClick={playlist.onClick}
               >
-                {/* 필요한 UI 구성 요소는 여기서 꾸며줘 */}
-                <div className="text-lg font-semibold text-center">{playlist.title}</div>
+                <CurationVideoCard
+                  id={playlist.id}
+                  title={playlist.title}
+                  imageUrl={playlist.imageUrl}
+                  onClick={() => !isDragging && playlist.onClick?.()}
+                  onDelete={playlist.onDelete}
+                  variant="large"
+                />
               </motion.div>
             ))}
           </motion.div>
@@ -92,10 +107,7 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
           </motion.button>
 
           {/* 제목 + 인디케이터 */}
-          <div className="absolute bottom-0 left-0 w-full px-4 py-3 bg-white/80 backdrop-blur-md border-t border-gray-200 z-20">
-            <div className="text-center text-gray-800">
-              <h1 className="text-sm font-semibold">{playlists[currentIndex].title}</h1>
-            </div>
+          <div className="absolute bottom-0 left-0 w-full px-4 py-3 bg-white/80 backdrop-blur-md z-20">
             <div className="flex justify-center space-x-2 mt-2">
               {playlists.map((_, index) => (
                 <div

@@ -16,10 +16,7 @@ import { supabase } from '@/supabase/createClient';
 import { useNavigate } from 'react-router-dom';
 import PlaylistSlider from '@/components/slider/PlaylistSlider';
 import MainCurationPlaylistSlider from '@/components/slider/MainCurationPlaylistSlider';
-import {
-  CATEGORY_LABELS,
-  CATEGORY_ORDER,
-} from '@/constants/curation'; 
+import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/constants/curation';
 
 type ExtendedCategoryType = CategoryType | 'all';
 
@@ -29,7 +26,6 @@ const EditCurationPage = () => {
     useState<ExtendedCategoryType>('all');
   const navigate = useNavigate();
   const [hasLoadedAll, setHasLoadedAll] = useState(false);
-
 
   const {
     curationVideosByCategory,
@@ -205,118 +201,117 @@ const EditCurationPage = () => {
   }, [curationVideosByCategory, selectedCategory]);
 
   return (
-  <main className="flex items-center justify-center w-full min-h-screen bg-gray-900 px-4">
-    <div className="relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
-      <div className="relative flex items-center justify-between px-6 pt-6 shrink-0">
-        <button
-          onClick={() => navigate('/')}
-          className="text-base font-bold text-blue-600 hover:text-blue-700"
-        >
-          Rythmixx
-        </button>
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-800 text-center pointer-events-none">
-          큐레이션 관리자
-        </h1>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-4 scroll-container">
-        <div className="space-y-3">
-          <label className="block font-medium text-gray-700">
-            카테고리 선택
-          </label>
-          <select
-            value={selectedCategory}
-            onChange={(e) =>
-              setSelectedCategory(e.target.value as ExtendedCategoryType)
-            }
-            className="w-full p-2 border rounded-md"
+    <main className="flex items-center justify-center w-full min-h-screen bg-gray-900 px-4">
+      <div className="relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
+        <div className="relative flex items-center justify-between px-6 pt-6 shrink-0">
+          <button
+            onClick={() => navigate('/')}
+            className="text-base font-bold text-blue-600 hover:text-blue-700"
           >
-            {(['all', ...CATEGORY_ORDER] as ExtendedCategoryType[]).map(
-              (key) => (
-                <option key={key} value={key}>
-                  {CATEGORY_LABELS[key]}
-                </option>
-              )
-            )}
-          </select>
+            Rythmixx
+          </button>
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-800 text-center pointer-events-none">
+            큐레이션 관리자
+          </h1>
         </div>
 
-        {selectedCategory !== 'all' && (
-          <>
-            <input
-              type="text"
-              placeholder="유튜브 영상 URL 또는 ID 입력"
-              value={videoId}
-              onChange={(e) => setVideoId(e.target.value)}
+        <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-4 scroll-container">
+          <div className="space-y-3">
+            <label className="block font-medium text-gray-700">
+              카테고리 선택
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) =>
+                setSelectedCategory(e.target.value as ExtendedCategoryType)
+              }
               className="w-full p-2 border rounded-md"
-            />
-            <button
-              onClick={handleAdd}
-              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 active:scale-95 transition-transform duration-150"
             >
-              영상 추가
-            </button>
-          </>
-        )}
+              {(['all', ...CATEGORY_ORDER] as ExtendedCategoryType[]).map(
+                (key) => (
+                  <option key={key} value={key}>
+                    {CATEGORY_LABELS[key]}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
 
-        {/* 슬라이더 분기 처리 */}
-        {selectedCategory === 'all' ? (
-          <>
-            {curationVideosByCategory['thisWeek']?.length > 0 && (
-              <MainCurationPlaylistSlider
-                playlists={curationVideosByCategory['thisWeek'].map((item) => ({
+          {selectedCategory !== 'all' && (
+            <>
+              <input
+                type="text"
+                placeholder="유튜브 영상 URL 또는 ID 입력"
+                value={videoId}
+                onChange={(e) => setVideoId(e.target.value)}
+                className="w-full p-2 border rounded-md"
+              />
+              <button
+                onClick={handleAdd}
+                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 active:scale-95 transition-transform duration-150"
+              >
+                영상 추가
+              </button>
+            </>
+          )}
+
+          {selectedCategory === 'all' ? (
+            <>
+              {curationVideosByCategory['thisWeek']?.length > 0 && (
+                <MainCurationPlaylistSlider
+                  playlists={curationVideosByCategory['thisWeek'].map((item) => ({
+                    id: item.id,
+                    title: item.title,
+                    imageUrl: item.imageUrl,
+                    onDelete: () => handleDelete(item.id),
+                    onClick: () => window.open(item.youtube_url, '_blank'),
+                  }))}
+                />
+              )}
+              {sliders
+                .filter((slider) => slider.category !== 'thisWeek')
+                .map((slider) => (
+                  <PlaylistSlider
+                    key={slider.category}
+                    title={slider.title}
+                    playlists={slider.playlists}
+                  />
+                ))}
+            </>
+          ) : selectedCategory === 'thisWeek' ? (
+            <MainCurationPlaylistSlider
+              playlists={
+                curationVideosByCategory['thisWeek']?.map((item) => ({
                   id: item.id,
                   title: item.title,
                   imageUrl: item.imageUrl,
                   onDelete: () => handleDelete(item.id),
                   onClick: () => window.open(item.youtube_url, '_blank'),
-                }))}
-              />
-            )}
-            {sliders
-              .filter((slider) => slider.category !== 'thisWeek')
-              .map((slider) => (
-                <PlaylistSlider
-                  key={slider.category}
-                  title={slider.title}
-                  playlists={slider.playlists}
-                />
-              ))}
-          </>
-        ) : selectedCategory === 'thisWeek' ? (
-          <MainCurationPlaylistSlider
-            playlists={
-              curationVideosByCategory['thisWeek']?.map((item) => ({
-                id: item.id,
-                title: item.title,
-                imageUrl: item.imageUrl,
-                onDelete: () => handleDelete(item.id),
-                onClick: () => window.open(item.youtube_url, '_blank'),
-              })) ?? []
-            }
-          />
-        ) : (
-          sliders.map((slider) => (
-            <PlaylistSlider
-              key={slider.category}
-              title={slider.title}
-              playlists={slider.playlists}
+                })) ?? []
+              }
             />
-          ))
-        )}
+          ) : (
+            sliders.map((slider) => (
+              <PlaylistSlider
+                key={slider.category}
+                title={slider.title}
+                playlists={slider.playlists}
+              />
+            ))
+          )}
 
-        {selectedCategory !== 'all' && (
-          <button
-            onClick={handleSave}
-            className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 active:scale-95 transition-transform duration-150 mt-6"
-          >
-            저장하기
-          </button>
-        )}
+          {selectedCategory !== 'all' && (
+            <button
+              onClick={handleSave}
+              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 active:scale-95 transition-transform duration-150 mt-6"
+            >
+              저장하기
+            </button>
+          )}
+        </div>
       </div>
-    </div>
-  </main>
-);
+    </main>
+  );
 };
 
 export default EditCurationPage;

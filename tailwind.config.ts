@@ -1,12 +1,13 @@
 
 import type { Config } from 'tailwindcss';
 import animate from 'tailwindcss-animate';
+import lineClamp from "@tailwindcss/line-clamp";
 
 
 const config: Config = {
   content: [
     './index.html',
-    './src/**/*.{ts,tsx}', // ← 사용 중인 파일 확장자
+    './src/**/*.{ts,tsx}',
   ],
   theme: {
     extend: {
@@ -20,12 +21,13 @@ const config: Config = {
         'fade-in-up': 'fadeInUp 0.25s ease-out',
       },
       borderRadius: {
-        xl: '1rem', // 필요시 수정
+        xl: '1rem',
       },
     },
   },
   plugins: [
-    animate
+    lineClamp,
+    animate,
   ],
 };
 

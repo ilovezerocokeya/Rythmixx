@@ -61,8 +61,8 @@ const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => 
       )}
 
       {/* 카드 슬라이더 영역 */}
-      <div className="relative w-full px-2 py-4 bg-white border border-gray-200 shadow-md rounded-2xl">
-        <div className="relative w-full h-[200px] overflow-hidden pr-4">
+      <div className="relative w-full px-1 py-1 bg-white border border-gray-200 shadow-md rounded-2xl">
+        <div className="relative w-full h-[190px] overflow-hidden pr-2">
           <motion.div
             animate={controls} // 외부에서 제어하는 애니메이션 적용
             drag="x" // 수평 드래그 가능

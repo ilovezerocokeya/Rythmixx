@@ -55,16 +55,19 @@ const Home = () => {
 
   return (
     <main className="flex justify-center items-center min-h-screen bg-gray-900">
-      <section className="scroll-container relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 overflow-y-auto">
-        <Header />
-
-        {/* 카테고리별 큐레이션 플레이리스트 렌더링 */}
-        <div className="flex flex-col gap-6 px-4 pt-12 py-6">
+      <section className="relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="z-10">
+          <Header />
+        </div>
+      
+        {/* 컨텐츠 */}
+        <div className="flex-1 overflow-y-auto px-4 pt-[50px] pb-6 space-y-10"> 
           {CATEGORY_ORDER.map((category) => {
             const playlists = formattedPlaylistsByCategory[category];
-
+          
             if (playlists.length === 0) return null;
-
+          
             if (category === 'thisWeek') {
               return (
                 <MainCurationPlaylistSlider
@@ -74,7 +77,7 @@ const Home = () => {
                 />
               );
             }
-
+          
             return (
               <PlaylistSlider
                 key={category}
@@ -84,8 +87,8 @@ const Home = () => {
             );
           })}
         </div>
-
-        {/* 모달 렌더링 */}
+        
+        {/* 모달 */}
         {isLoginModalOpen && <LoginModal />}
         {isSearchModalOpen && <SearchModal />}
       </section>

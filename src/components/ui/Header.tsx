@@ -22,7 +22,7 @@ const Header = () => {
   };
 
   return (
-    <div className="absolute top-0 left-0 w-full px-4 py-2 flex justify-between items-center rounded-3xl z-30 bg-white/80 backdrop-blur-sm border-b border-gray-200">
+    <div className="absolute top-0 left-0 w-full px-4 py-2 flex justify-between items-center rounded-3xl z-999 bg-white/50 backdrop-blur-sm border-b border-gray-200">
       <div className="flex items-center space-x-3">
         {/* 로고 */}
         <button

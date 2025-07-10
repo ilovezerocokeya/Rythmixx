@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import CurationVideoCard from "../ui/CurationVideoCard";
 
-// 카드 정보 타입 정의
+// 개별 카드 정보 타입 정의
 type PlaylistProps = {
   id: string;
   title: string;
@@ -11,28 +11,29 @@ type PlaylistProps = {
   onDelete?: () => void;
 };
 
-// 슬라이더 전체 props 정의
+// 슬라이더 컴포넌트에 전달되는 props 타입 정의
 type PlaylistSliderProps = {
   title?: string;
   playlists: PlaylistProps[];
 };
 
-// 카드 너비, 간격, 패딩 설정
+// 카드 UI 관련 상수 정의
 const CARD_WIDTH = 180;
 const CARD_GAP = 12;
 const EXTRA_PADDING = 24;
 
-// 총 슬라이더 너비 계산 함수
+// 전체 슬라이더 너비 계산 함수
 const TOTAL_WIDTH = (cardCount: number) =>
   cardCount * (CARD_WIDTH + CARD_GAP) + EXTRA_PADDING;
 
+// 메인 슬라이더 컴포넌트
 const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => {
   const totalCards = playlists.length;
-  const controls = useAnimation(); // framer-motion 제어용
+  const controls = useAnimation(); // 슬라이드 애니메이션 제어
   const [isDragging, setIsDragging] = useState(false); // 드래그 중 여부
-  const [, setCurrentIndex] = useState(0); // 슬라이드 인덱스 상태 (렌더 목적 X)
+  const [, setCurrentIndex] = useState(0); // 현재 인덱스 (뷰용)
 
-  // 드래그 속도에 따른 수동 스크롤 이동 처리
+  // 좌우로 슬라이드할 때 실행되는 함수
   const scroll = useCallback(
     (direction: "left" | "right") => {
       setCurrentIndex((prevIndex) => {
@@ -42,8 +43,8 @@ const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => 
             : Math.min(totalCards - 1, prevIndex + 1);
 
         controls.start({
-          x: -nextIndex * (CARD_WIDTH + CARD_GAP),
-          transition: { duration: 0.3, ease: "easeInOut" },
+          x: -nextIndex * (CARD_WIDTH + CARD_GAP), // 카드 하나 너비만큼 이동
+          transition: { duration: 0.3, ease: "easeInOut" }, // 부드러운 이동
         });
 
         return nextIndex;
@@ -54,43 +55,50 @@ const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => 
 
   return (
     <div className="w-full flex flex-col gap-2">
+      {/* 섹션 제목 */}
       {title && (
         <h2 className="text-sm font-semibold text-gray-900 px-4">{title}</h2>
       )}
 
+      {/* 카드 슬라이더 영역 */}
       <div className="relative w-full px-2 py-4 bg-white border border-gray-200 shadow-md rounded-2xl">
         <div className="relative w-full h-[200px] overflow-hidden pr-4">
           <motion.div
-            animate={controls}
-            drag="x"
+            animate={controls} // 외부에서 제어하는 애니메이션 적용
+            drag="x" // 수평 드래그 가능
             dragConstraints={{
-              // 전체 너비 - 보여질 영역(320px 기준)을 기준으로 드래그 제한
-              left: -Math.max(0, TOTAL_WIDTH(totalCards) - 320),
-              right: 0,
+              left: -Math.max(0, TOTAL_WIDTH(totalCards) - 320), // 왼쪽 드래그 한계
+              right: 0, // 오른쪽 드래그 한계
             }}
-            dragElastic={0.15}
-            dragMomentum={true}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            dragElastic={0.9} // 드래그 탄성도 (끝에서 튕김 정도)
+            dragMomentum={true} // 드래그 후 관성 효과
+            transition={{ duration: 0.3, ease: "easeInOut" }} // 기본 트랜지션
             className="flex cursor-grab active:cursor-grabbing space-x-3"
-            style={{ width: `${TOTAL_WIDTH(totalCards)}px` }} // motion 영역 너비 지정
-            onDragStart={() => setIsDragging(true)}
+            style={{ width: `${TOTAL_WIDTH(totalCards)}px` }} // 슬라이더 너비 설정
+            onDragStart={() => setIsDragging(true)} // 드래그 시작
             onDragEnd={(event, info) => {
-              // 드래그 후 속도 기준으로 좌우 이동 결정
-              setTimeout(() => setIsDragging(false), 150);
-              if (info.velocity.x < -50) scroll("right");
-              else if (info.velocity.x > 50) scroll("left");
+              setTimeout(() => setIsDragging(false), 150); // 클릭 방지용 지연 해제
+              if (info.velocity.x < -50) scroll("right"); // 오른쪽으로 슬라이드
+              else if (info.velocity.x > 50) scroll("left"); // 왼쪽으로 슬라이드
             }}
           >
+            {/* 개별 카드 렌더링 */}
             {playlists.map((playlist) => (
-              <CurationVideoCard
+              <motion.div
                 key={playlist.id}
-                id={playlist.id}
-                title={playlist.title}
-                imageUrl={playlist.imageUrl}
-                onClick={() => !isDragging && playlist.onClick?.()} // 드래그 중이 아닐 때만 클릭 허용
-                onDelete={playlist.onDelete}
-                variant="small"
-              />
+                whileHover={{ scale: 1.05 }} // 마우스 호버 시 확대
+                transition={{ type: "spring", stiffness: 300 }} // 부드러운 스프링 효과
+                className="shadow-sm hover:shadow-lg rounded-xl"
+              >
+                <CurationVideoCard
+                  id={playlist.id}
+                  title={playlist.title}
+                  imageUrl={playlist.imageUrl}
+                  onClick={() => !isDragging && playlist.onClick?.()} // 드래그 중이 아닐 때만 클릭 실행
+                  onDelete={playlist.onDelete}
+                  variant="small" // 카드 크기 옵션
+                />
+              </motion.div>
             ))}
           </motion.div>
         </div>

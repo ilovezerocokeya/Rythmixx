@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
-
+import { useEffect, useMemo } from 'react';
 import useGeolocation from './hooks/useGeolocation';
 import useWeather from './hooks/useWeather';
 import PlaylistSlider from './components/slider/PlaylistSlider';
@@ -12,12 +11,10 @@ import { useModalStore } from './stores/useModalStore';
 import LoginModal from './components/login/LoginModal';
 import SearchModal from './components/search/SearchModal';
 import Header from './components/ui/Header';
-import { CATEGORY_LABELS, CATEGORY_ORDER } from './constants/curation'; 
+import { CATEGORY_LABELS, CATEGORY_ORDER } from './constants/curation';
 
 const Home = () => {
   const { curationVideosByCategory } = useCurationStore();
-  const { restoreUser } = useAuthStore();
-
   const modal = useModalStore((state) => state.openModal);
   const isLoginModalOpen = modal === 'login';
   const isSearchModalOpen = modal === 'search';
@@ -25,37 +22,55 @@ const Home = () => {
   useGeolocation();
   useWeather();
 
+  // 로그인 복원 처리
   useEffect(() => {
-    restoreUser();
-  }, [restoreUser]);
+    useAuthStore.getState().restoreUser();
+  }, []);
+
+  // 첫 진입 시 큐레이션 데이터 불러오기
+  useEffect(() => {
+    useCurationStore.getState().fetchAllCurationVideos();
+  }, []);
+
+  // 개발 환경에서만 상태 변경 로그 출력
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Home] curationVideosByCategory 상태 변경 감지:', curationVideosByCategory);
+    }
+  }, [curationVideosByCategory]);
+
+  // 각 카테고리별 슬라이더용 데이터 포맷 캐싱
+  const formattedPlaylistsByCategory = useMemo(() => {
+    return CATEGORY_ORDER.reduce((acc, category) => {
+      const playlists = curationVideosByCategory[category];
+      acc[category] = playlists?.map((item) => ({
+        id: item.id,
+        title: item.title,
+        imageUrl: item.imageUrl,
+        onClick: () => window.open(item.youtube_url, '_blank'),
+      })) ?? [];
+      return acc;
+    }, {} as Record<string, { id: string; title: string; imageUrl: string; onClick: () => void }[]>);
+  }, [curationVideosByCategory]);
 
   return (
     <main className="flex justify-center items-center min-h-screen bg-gray-900">
       <section className="scroll-container relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 overflow-y-auto">
-        
-        {/* 헤더 */}
         <Header />
 
-        {/* 플레이리스트 렌더링 */}
+        {/* 카테고리별 큐레이션 플레이리스트 렌더링 */}
         <div className="flex flex-col gap-6 px-4 pt-12 py-6">
-
           {CATEGORY_ORDER.map((category) => {
-            const playlists = curationVideosByCategory[category];
-            if (!playlists || playlists.length === 0) return null;
+            const playlists = formattedPlaylistsByCategory[category];
 
-            const formattedPlaylists = playlists.map((item) => ({
-              id: item.id,
-              title: item.title,
-              imageUrl: item.imageUrl,
-              onClick: () => window.open(item.youtube_url, '_blank'),
-            }));
+            if (playlists.length === 0) return null;
 
             if (category === 'thisWeek') {
               return (
                 <MainCurationPlaylistSlider
                   key={category}
                   title="🎯 이번 주 추천 플리"
-                  playlists={formattedPlaylists}
+                  playlists={playlists}
                 />
               );
             }
@@ -64,13 +79,13 @@ const Home = () => {
               <PlaylistSlider
                 key={category}
                 title={`💿 ${CATEGORY_LABELS[category]} 추천`}
-                playlists={formattedPlaylists}
+                playlists={playlists}
               />
             );
           })}
         </div>
 
-        {/* 모달 */}
+        {/* 모달 렌더링 */}
         {isLoginModalOpen && <LoginModal />}
         {isSearchModalOpen && <SearchModal />}
       </section>

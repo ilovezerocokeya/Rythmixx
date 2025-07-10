@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
-import PlaylistCard from "../ui/playlistCard";
+import PlaylistCard from "./playlistCard";
 
 type PlaylistProps = {
   id: string;

@@ -1,25 +1,23 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
 export type User = {
-  id: string;        
+  id: string;
   email: string;
-  nickname: string;
-}
+  nickname: string | null;
+};
 
 type AuthState = {
   user: User | null;
   login: (user: User) => void;
   logout: () => void;
   restoreUser: () => void;
-}
+};
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
 
   login: (user) => {
-    // 상태 업데이트
     set({ user });
-    // localStorage에 현재 로그인한 유저 저장
     localStorage.setItem('currentUser', JSON.stringify(user));
   },
 
@@ -39,5 +37,5 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ user: null });
       }
     }
-  }
+  },
 }));

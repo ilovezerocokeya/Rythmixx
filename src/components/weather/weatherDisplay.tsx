@@ -1,38 +1,53 @@
-import { useMemo } from "react";
-import { useWeatherStore } from "../../stores/useWeatherStore";
+import { useState, useMemo } from "react";
+import { useWeatherStore } from "@/stores/useWeatherStore";
+import useReverseGeocoding from "@/hooks/useReverseGeocoding";
 
-// 현재 날씨 상태를 화면에 표시
 const WeatherDisplay = () => {
   const { weather, timeOfDay } = useWeatherStore();
+  const [showLocation, setShowLocation] = useState(false);
+  const city = useReverseGeocoding();
 
   const weatherEmoji = useMemo(() => {
-    if (!weather) return ""; // 날씨 정보가 없을 때 로딩 표시
+    if (!weather) return "";
 
     if (timeOfDay === "night") {
-      if (weather === "Rain") return "🌧️"; // 비
-      if (weather === "Snow") return "❄️"; // 눈
-      return "🌙"; // 기본값: 맑은 밤
+      if (weather === "Rain") return "🌧️";
+      if (weather === "Snow") return "❄️";
+      return "🌙";
     }
 
     switch (weather) {
-      case "Clear":
-        return "☀️"; // 맑음
-      case "Clouds":
-        return "☁️"; // 구름
-      case "Rain":
-        return "🌧️"; // 비
-      case "Snow":
-        return "❄️"; // 눈
-      case "Thunderstorm":
-        return "⛈️"; // 천둥번개
-      default:
-        return ""; // 알 수 없음
+      case "Clear": return "☀️";
+      case "Clouds": return "☁️";
+      case "Rain": return "🌧️";
+      case "Snow": return "❄️";
+      case "Thunderstorm": return "⛈️";
+      default: return "";
     }
-  }, [weather, timeOfDay]); // weather, timeOfDay 값이 변경될 때만 재계산
+  }, [weather, timeOfDay]);
 
   return (
-    <div className="flex items-center gap-4">
-      <span className="text-sm">{weatherEmoji}</span>
+    <div
+      className="relative"
+      onMouseEnter={() => setShowLocation(true)}
+      onMouseLeave={() => setShowLocation(false)}
+    >
+      <span className="text-xl cursor-default">
+        {weatherEmoji}
+      </span>
+
+      {showLocation && (
+        <div
+          key={city}
+          className="absolute top-10 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up"
+        >
+          <div className="relative px-5 py-2.5 flex items-center gap-1 text-sm text-blue-950 font-medium bg-[rgba(255,255,255,0.5)] border border-white/50 shadow-[0_4px_30px_rgba(0,0,0,0.1)] backdrop-blur-md backdrop-saturate-150 rounded-2xl whitespace-nowrap">
+            <div className="absolute top-[-6px] left-1/2 -translate-x-1/2 w-2.5 h-2.5 rotate-45 bg-[rgba(255,255,255,0.5)] border-t border-l border-white/50 backdrop-blur-md backdrop-saturate-150 shadow" />
+            <span className="text-base drop-shadow-sm">📍</span>
+            <span className="drop-shadow-sm">{city || "위치 불러오는 중..."}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

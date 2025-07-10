@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 
 import useGeolocation from './hooks/useGeolocation';
@@ -7,32 +9,36 @@ import WeatherPlaylistSlider from './components/playlist/weatherPlaylistSlider';
 
 import { usePlaylistStore } from './stores/usePlaylistStore';
 import { useAuthStore } from './stores/useAuthStore';
-import { useLoginModalStore } from './stores/useLoginModalStore';
-import LoginModal from './components/Login/LoginModal'; 
+import { useModalStore } from './stores/useModalStore';
+
+import LoginModal from './components/Login/LoginModal';
+import SearchModal from './components/Search/SearchModal';
 
 const Home = () => {
   useGeolocation();
   useWeather();
 
   const { preferredPlaylists, genrePlaylists } = usePlaylistStore();
-  const restoreUser = useAuthStore((state) => state.restoreUser);
-  const user = useAuthStore((state) => state.user);
-  const isLoginModalOpen = useLoginModalStore((state) => state.isOpen); // 모달 상태 가져오기
+  const { restoreUser, user } = useAuthStore();
+  const modal = useModalStore((state) => state.openModal);
+
+  const nickname = user?.nickname ?? '게스트';
+
+  const isLoginModalOpen = modal === 'login';
+  const isSearchModalOpen = modal === 'search';
 
   useEffect(() => {
     restoreUser();
   }, [restoreUser]);
 
-  const nickname = user?.nickname ?? '게스트';
-
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900">
-      <div className="relative w-full max-w-[360px] min-h-[640px] bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+    <main className="flex justify-center items-center min-h-screen bg-gray-900">
+      <section className="relative w-full max-w-[360px] min-h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden">
         
-        {/* 날씨 추천 */}
+        {/* 날씨 기반 추천 */}
         <WeatherPlaylistSlider nickname={nickname} />
 
-        {/* 추천 플레이리스트 */}
+        {/* 추천 섹션 */}
         <div className="flex flex-col gap-6 px-4 py-6">
           <PlaylistSlider
             title="😊 기분에 따라 골라보세요!"
@@ -44,10 +50,11 @@ const Home = () => {
           />
         </div>
 
-        {/* 로그인 모달 */}
+        {/* 모달 */}
         {isLoginModalOpen && <LoginModal />}
-      </div>
-    </div>
+        {isSearchModalOpen && <SearchModal />}
+      </section>
+    </main>
   );
 };
 

@@ -1,141 +1,104 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { supabase } from '@/supabase/createClient';
 import { validateNickname } from '@/utils/validateNickname';
-
-const musicGenres = [
-  'Dance', 'Pop', 'Rap/Hiphop', 'R&B/Soul',
-  'Rock', 'Jazz', 'Classic', 'EDM',
-  'Indie', 'Ballad', '트로트', 'Folk',
-];
+import Header from '@/components/ui/Header';
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const [nickname, setNickname] = useState('');
-  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [isNicknameValid, setIsNicknameValid] = useState(false);
 
-  useEffect(() => {
-	  // 로그인 안 했거나, 닉네임이 이미 있는 경우 → 홈으로 이동
-	  if (!user || user.nickname) {
-	    navigate('/');
-	  }
-	}, [user]);
+  const handleSignup = async () => {
+    if (!nickname) {
+      alert('닉네임은 필수 항목입니다.');
+      return;
+    }
 
-  const toggleGenre = (genre: string) => {
-    if (selectedGenres.includes(genre)) {
-      setSelectedGenres((prev) => prev.filter((g) => g !== genre));
-    } else if (selectedGenres.length < 3) {
-      setSelectedGenres((prev) => [...prev, genre]);
+    if (!isNicknameValid) {
+      alert('닉네임 중복 확인을 해주세요.');
+      return;
+    }
+
+    if (!user?.id || !user?.email) {
+      alert('유저 정보가 없습니다.');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('users')
+      .update({ nickname })
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('회원정보 저장 오류:', error);
+      alert('회원가입 중 오류가 발생했습니다.');
     } else {
-      alert('최대 3개의 장르만 선택할 수 있어요.');
+      useAuthStore.getState().login({
+        id: user.id,
+        email: user.email,
+        nickname,
+      });
+
+      alert(`환영합니다, ${nickname}님!`);
+      navigate('/');
     }
   };
 
-  const handleSignup = async () => {
-  if (!nickname || selectedGenres.length === 0) {
-    alert('닉네임과 장르는 필수 항목입니다.');
-    return;
-  }
+  const handleNicknameCheck = async () => {
+    const errorMessage = await validateNickname(nickname);
 
-  if (!isNicknameValid) {
-    alert('닉네임 중복 확인을 해주세요.');
-    return;
-  }
-
-  if (!user?.id || !user?.email) {
-    alert('유저 정보가 없습니다.');
-    return;
-  }
-
-  const { error } = await supabase
-    .from('users')
-    .update({
-      nickname,
-      preference: selectedGenres,
-    })
-    .eq('user_id', user.id);
-
-  if (error) {
-    console.error('회원정보 저장 오류:', error);
-    alert('회원가입 중 오류가 발생했습니다.');
-  } else {
-    useAuthStore.getState().login({
-      id: user.id,
-      email: user.email,
-      nickname,
-    });
-
-    alert(`환영합니다, ${nickname}님!`);
-    navigate('/');
-  }
-};
+    if (errorMessage) {
+      alert(errorMessage);
+      setIsNicknameValid(false);
+    } else {
+      alert('사용 가능한 닉네임입니다!');
+      setIsNicknameValid(true);
+    }
+  };
 
   return (
-    <div className="flex justify-center items-center w-screen h-screen bg-[#F5F7FA] text-gray-800">
-      <div className="flex flex-col items-center w-[320px] max-w-md bg-white rounded-2xl px-5 py-6 space-y-4 shadow-xl">
-        <h2 className="text-xl font-bold text-blue-600">회원 정보 입력</h2>
+    <div className="flex justify-center items-center min-h-screen bg-gray-900">
+      <div className="relative w-full max-w-[360px] min-h-[640px] bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+        <Header />
 
-        {/* 닉네임 */}
-        <div className="w-full flex gap-2 items-center">
-          <input
-            type="text"
-            placeholder="닉네임"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            className="w-full px-2.5 py-1.5 rounded-md border border-gray-300 text-xs"
-          />
-          <button
-					  onClick={async () => {
-					    const errorMessage = await validateNickname(nickname);
-						
-					    if (errorMessage) {
-					      alert(errorMessage);
-					      setIsNicknameValid(false);
-					    } else {
-					      alert('사용 가능한 닉네임입니다!');
-					      setIsNicknameValid(true);
-					    }
-					  }}
-					  className="px-2 py-1.5 bg-blue-500 text-white text-[10px] rounded hover:bg-blue-600"
-					>
-					  중복확인
-					</button>
-        </div>
-
-        {/* 장르 선택 */}
-        <div className="w-full">
-          <p className="text-xs text-center mb-1">선호 장르 (최대 3개)</p>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {musicGenres.map((genre) => {
-              const selected = selectedGenres.includes(genre);
-              return (
-                <button
-                  key={genre}
-                  type="button"
-                  onClick={() => toggleGenre(genre)}
-                  className={`px-2 py-1 rounded-full text-[11px] border transition ${
-                    selected
-                      ? 'bg-blue-500 text-white border-blue-500'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'
-                  }`}
-                >
-                  {genre}
-                </button>
-              );
-            })}
+        <div className="flex flex-col justify-center px-6 pt-8 pb-20 min-h-[640px] h-full space-y-8">
+          {/* 상단 타이틀 */}
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-gray-900">🙋‍♀️ 회원 정보 입력</h2>
+            <p className="text-sm text-gray-500 mt-1">서비스 이용을 위한 닉네임을 등록해주세요</p>
           </div>
+          
+          {/* 입력 박스 */}
+          <div className="space-y-4">
+            <label className="text-sm font-medium text-gray-700">닉네임</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                className="flex-1 px-4 py-2 rounded-xl bg-gray-100 border border-gray-300 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                placeholder="닉네임 입력"
+              />
+              <button
+                onClick={handleNicknameCheck}
+                className="shrink-0 whitespace-nowrap px-4 py-2 bg-blue-500 text-white text-sm rounded-xl hover:bg-blue-600 transition"
+              >
+                중복확인
+              </button>
+            </div>
+          </div>
+          
+          {/* 가입 버튼 */}
+          <button
+            onClick={handleSignup}
+            className="w-full py-3 text-sm font-medium bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
+          >
+            가입 완료하기
+          </button>
         </div>
-
-        {/* 제출 */}
-        <button
-          onClick={handleSignup}
-          className="w-full py-1.5 bg-blue-500 text-white text-xs font-semibold rounded hover:bg-blue-600"
-        >
-          가입 완료하기
-        </button>
       </div>
     </div>
   );

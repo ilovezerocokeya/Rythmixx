@@ -10,7 +10,7 @@ type CurationVideoCardProps = {
   imageUrl: string;
   onClick?: () => void;
   onDelete?: () => void;
-  variant?: "small" | "large";
+  variant?: "xs" | "small" | "large";
 };
 
 const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
@@ -30,26 +30,49 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
     <div
       className={clsx(
         "relative flex-shrink-0 snap-start bg-white rounded-lg shadow p-2",
-        variant === "small" ? "w-[180px]" : "w-[340px] h-[240px]"
+        variant === "xs"
+          ? "w-[95px] h-[100px]"
+          : variant === "small"
+          ? "w-[180px]"
+          : "w-[340px] h-[240px]"
       )}
     >
       {/* 썸네일 */}
-      <img
-        src={imageUrl}
-        alt={title}
-        onClick={onClick}
-        className={clsx(
-          "w-full object-cover rounded-md select-none transition cursor-pointer",
-          variant === "small" ? "h-[120px]" : "h-[180px]"
-        )}
-        draggable={false}
-      />
+      {variant === "xs" ? (
+        <div
+          onClick={onClick}
+          className="aspect-[3/2] w-full rounded-md overflow-hidden select-none cursor-pointer bg-gray-100"
+        >
+          <img
+            src={imageUrl}
+            alt={title}
+            onClick={onClick}
+            className="w-full h-[64px] object-cover rounded-md select-none transition cursor-pointer"
+            draggable={false}
+          />
+        </div>
+      ) : (
+        <img
+          src={imageUrl}
+          alt={title}
+          onClick={onClick}
+          className={clsx(
+            "w-full object-cover rounded-md select-none transition cursor-pointer",
+            variant === "small" ? "h-[120px]" : "h-[180px]"
+          )}
+          draggable={false}
+        />
+      )}
 
       {/* 타이틀 */}
       <div
         className={clsx(
-          "mt-2 text-[13px] font-medium leading-snug line-clamp-2 text-center select-none cursor-default",
-          variant === "small" ? "h-[38px]" : "px-4"
+          "mt-[6px] font-medium text-center select-none leading-tight cursor-default line-clamp-2",
+          variant === "xs"
+            ? "text-[10px] h-[26px]"
+            : variant === "small"
+            ? "text-[13px] h-[34px]"
+            : "text-[14px] h-[40px] px-4"
         )}
       >
         {title}
@@ -77,13 +100,7 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
         onClick={(e) => {
           e.stopPropagation();
 
-          console.log("[디버그] 좋아요 버튼 클릭됨");
-          console.log("현재 유저:", user);
-          console.log("현재 playlist_id:", id);
-          console.log("현재 좋아요 상태:", isLiked);
-
           if (!user) {
-            console.log("[디버그] 로그인 안 되어 있음 → 로그인 모달 실행");
             openLoginModal("login");
             return;
           }
@@ -93,10 +110,14 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
             title,
             image_url: imageUrl,
           });
-
-          console.log("[디버그] toggleLike 호출 완료");
         }}
-        className="absolute top-1 right-1 bg-white/90 text-red-500 text-2xl rounded-full w-7 h-7 flex items-center justify-center shadow ring-1 ring-white/80 hover:scale-110 transition"
+        className={clsx(
+          "absolute flex items-center justify-center rounded-full shadow ring-1 ring-white/80 hover:scale-110 transition",
+          variant === "xs"
+            ? "top-[2px] right-[2px] w-5 h-5 text-[14px]"
+            : "top-1 right-1 w-7 h-7 text-2xl"
+        )}
+        style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#ef4444" }}
         title="좋아요"
       >
         {isLiked ? "♥" : "♡"}

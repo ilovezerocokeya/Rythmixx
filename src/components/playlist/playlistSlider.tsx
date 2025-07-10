@@ -1,46 +1,51 @@
 import React, { useCallback, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
-import PlaylistCard from "./playlistCard";
+import CurationVideoCard from "../ui/CurationVideoCard";
 
+// 카드 정보 타입 정의
 type PlaylistProps = {
   id: string;
   title: string;
   imageUrl: string;
-  onClick: () => void;
+  onClick?: () => void;
+  onDelete?: () => void;
 };
 
+// 슬라이더 전체 props 정의
 type PlaylistSliderProps = {
   title?: string;
   playlists: PlaylistProps[];
 };
 
-const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => {
-  const totalCards = playlists.length; // 전체 카드 개수
-  const cardGap = 70; // 카드 간격
-  const controls = useAnimation(); // Framer Motion 애니메이션 컨트롤
-  const [isDragging, setIsDragging] = useState(false); // 드래그 중인지 여부 상태
-  const [, setCurrentIndex] = useState(0);
+// 카드 너비, 간격, 패딩 설정
+const CARD_WIDTH = 180;
+const CARD_GAP = 12;
+const EXTRA_PADDING = 24;
 
-  // 슬라이드 이동 함수
+// 총 슬라이더 너비 계산 함수
+const TOTAL_WIDTH = (cardCount: number) =>
+  cardCount * (CARD_WIDTH + CARD_GAP) + EXTRA_PADDING;
+
+const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => {
+  const totalCards = playlists.length;
+  const controls = useAnimation(); // framer-motion 제어용
+  const [isDragging, setIsDragging] = useState(false); // 드래그 중 여부
+  const [, setCurrentIndex] = useState(0); // 슬라이드 인덱스 상태 (렌더 목적 X)
+
+  // 드래그 속도에 따른 수동 스크롤 이동 처리
   const scroll = useCallback(
     (direction: "left" | "right") => {
-      
-      // 현재 인덱스 상태를 업데이트하면서 다음 인덱스를 계산
       setCurrentIndex((prevIndex) => {
-
-        // 이동 방향에 따라 인덱스를 증가 또는 감소
         const nextIndex =
           direction === "left"
-            ? Math.max(0, prevIndex - 1)                         
-            : Math.min(totalCards - 1, prevIndex + 1);         
-  
-        // Framer Motion의 애니메이션 컨트롤러를 통해 슬라이드 이동 애니메이션 실행
+            ? Math.max(0, prevIndex - 1)
+            : Math.min(totalCards - 1, prevIndex + 1);
+
         controls.start({
-          x: -nextIndex * cardGap,                              // 카드 하나당 이동 거리 만큼 x축 이동
-          transition: { duration: 0.3, ease: "easeInOut" },     // 부드러운 easeInOut 전환 적용
+          x: -nextIndex * (CARD_WIDTH + CARD_GAP),
+          transition: { duration: 0.3, ease: "easeInOut" },
         });
-  
-        // 상태 업데이트를 위해 nextIndex 반환
+
         return nextIndex;
       });
     },
@@ -49,36 +54,41 @@ const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => 
 
   return (
     <div className="w-full flex flex-col gap-2">
-      {/* 섹션 제목 */}
       {title && (
-        <h2 className="text-sm font-semibold text-gray-900 px-4">
-          {title}
-        </h2>
+        <h2 className="text-sm font-semibold text-gray-900 px-4">{title}</h2>
       )}
 
-      {/* 카드 슬라이더 */}
-      <div className="relative w-full px-4 py-3 rounded-xl bg-white border border-gray-200 shadow-sm">
-        <div className="relative w-full h-[115px] overflow-hidden">
+      <div className="relative w-full px-2 py-4 bg-white border border-gray-200 shadow-md rounded-2xl">
+        <div className="relative w-full h-[200px] overflow-hidden pr-4">
           <motion.div
             animate={controls}
             drag="x"
-            dragConstraints={{ left: -cardGap * (totalCards - 1), right: 0 }}
-            dragElastic={0.2}
+            dragConstraints={{
+              // 전체 너비 - 보여질 영역(320px 기준)을 기준으로 드래그 제한
+              left: -Math.max(0, TOTAL_WIDTH(totalCards) - 320),
+              right: 0,
+            }}
+            dragElastic={0.15}
             dragMomentum={true}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="flex space-x-2 cursor-grab"
+            className="flex cursor-grab active:cursor-grabbing space-x-3"
+            style={{ width: `${TOTAL_WIDTH(totalCards)}px` }} // motion 영역 너비 지정
             onDragStart={() => setIsDragging(true)}
             onDragEnd={(event, info) => {
-              setTimeout(() => setIsDragging(false), 200);
+              // 드래그 후 속도 기준으로 좌우 이동 결정
+              setTimeout(() => setIsDragging(false), 150);
               if (info.velocity.x < -50) scroll("right");
               else if (info.velocity.x > 50) scroll("left");
             }}
           >
             {playlists.map((playlist) => (
-              <PlaylistCard
+              <CurationVideoCard
                 key={playlist.id}
-                {...playlist}
-                onClick={() => !isDragging && playlist.onClick()}
+                id={playlist.id}
+                title={playlist.title}
+                imageUrl={playlist.imageUrl}
+                onClick={() => !isDragging && playlist.onClick?.()} // 드래그 중이 아닐 때만 클릭 허용
+                onDelete={playlist.onDelete}
               />
             ))}
           </motion.div>

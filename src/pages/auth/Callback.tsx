@@ -9,38 +9,31 @@ const Callback = () => {
 
   useEffect(() => {
     const processAuth = async () => {
-      console.log('[🔁] Callback 진입');
-      console.log('[📍] 현재 URL:', window.location.href);
-      console.log('[🔎] location.search:', window.location.search);
-      console.log('[🔎] location.hash:', window.location.hash);
-
-      // Supabase가 세션을 처리할 시간을 주기
+      // Supabase가 세션을 처리할 수 있도록 약간의 시간 대기
       await new Promise((res) => setTimeout(res, 500));
-      console.log('[⏳] 500ms 대기 후 getSession 호출');
 
+      // 현재 세션 정보 확인
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-      console.log('[📡] getSession 응답:', sessionData, sessionError);
 
       if (!sessionData?.session || sessionError) {
-        console.warn('[⚠️] 세션 없음 또는 에러 발생');
-        if (sessionError) console.error('[❌] getSession 에러:', sessionError.message);
+        // 세션이 없거나 에러가 발생한 경우 홈으로 이동
         navigate('/');
         return;
       }
 
       const user = sessionData.session.user;
-      console.log('[✅] 세션 확보됨, 유저 정보:', user);
 
-      // Zustand에 초기 로그인 정보 저장 (nickname은 null)
+      // 전역 상태에 로그인 정보 저장
       login({
         id: user.id,
         email: user.email ?? '',
         nickname: null,
       });
 
+      // 세션을 sessionStorage에도 저장
       sessionStorage.setItem('user', JSON.stringify(user));
 
-      // users 테이블에서 조회
+      // Supabase users 테이블에서 유저 정보 조회
       const { data: existingUser, error: selectError } = await supabase
         .from('users')
         .select('nickname')
@@ -48,38 +41,37 @@ const Callback = () => {
         .maybeSingle();
 
       if (selectError) {
-        console.error('[❌] 유저 조회 중 에러:', selectError.message);
+        // 조회 중 에러 발생 시 홈으로 이동
         navigate('/');
         return;
       }
 
-      // users 테이블에 데이터가 없으면 insert
       if (!existingUser) {
+        // 최초 로그인 유저라면 users 테이블에 새로 삽입
         const { error: insertError } = await supabase.from('users').insert([
           {
             user_id: user.id,
             email: user.email,
-            nickname: null, // 기본값
+            nickname: null,
           },
         ]);
 
         if (insertError) {
-          console.error('[❌] users 테이블 insert 실패:', insertError.message);
+          // 삽입 실패 시 홈으로 이동
           navigate('/');
           return;
         }
 
-        console.log('[✅] users 테이블 최초 유저 등록 완료');
+        // 가입 이후 nickname 설정 페이지로 이동
         navigate('/signup');
         return;
       }
 
-      // 닉네임 존재 여부에 따라 분기
       if (!existingUser.nickname) {
-        console.log('[➡️] nickname 없음 → /signup 이동');
+        // 닉네임이 아직 없는 유저는 signup 페이지로 이동
         navigate('/signup');
       } else {
-        console.log('[➡️] nickname 있음 → 홈 이동');
+        // 닉네임이 있는 기존 유저는 전역 상태 갱신 후 홈으로 이동
         login({
           id: user.id,
           email: user.email ?? '',

@@ -9,21 +9,28 @@ import { validateNickname } from '@/utils/validateNickname';
 import { useDebounce } from '@/hooks/useDebounce';
 
 const Mypage = () => {
-  const { user, login } = useAuthStore();
+  const { user, login } = useAuthStore(); // 사용자 정보 및 로그인 함수 가져오기
   const navigate = useNavigate();
+
+  // 저장된 유튜브 플레이리스트 상태
   const [savedPlaylists, setSavedPlaylists] = useState<
     { id: string; title: string; thumbnail_url: string; channel_title: string }[]
   >([]);
 
+  // 닉네임 편집 상태 관련
   const [editingNickname, setEditingNickname] = useState(false);
   const [nicknameInput, setNicknameInput] = useState(user?.nickname ?? '');
   const [nicknameError, setNicknameError] = useState<string | null>(null);
+
+  // 닉네임 입력값 디바운싱
   const debouncedNickname = useDebounce(nicknameInput, 300);
 
+  // 로그인 안 된 경우 홈으로 이동
   useEffect(() => {
     if (!user) navigate('/');
   }, [user, navigate]);
 
+  // 저장된 플레이리스트 불러오기
   useEffect(() => {
     if (!user) return;
 
@@ -45,6 +52,7 @@ const Mypage = () => {
     fetchSavedPlaylists();
   }, [user]);
 
+  // 닉네임 중복 체크 및 유효성 검사
   useEffect(() => {
     if (!editingNickname || debouncedNickname === user?.nickname) {
       setNicknameError(null);
@@ -59,11 +67,13 @@ const Mypage = () => {
     validate();
   }, [debouncedNickname, editingNickname, user?.nickname]);
 
+  // 닉네임 업데이트 함수
   const handleNicknameUpdate = async () => {
     if (!user) return;
-    const trimmed = nicknameInput.trim();
 
+    const trimmed = nicknameInput.trim();
     const errorMsg = await validateNickname(trimmed);
+
     if (errorMsg) {
       setNicknameError(errorMsg);
       return;
@@ -80,11 +90,13 @@ const Mypage = () => {
       return;
     }
 
+    // 상태 갱신 및 UI 반영
     login({ 
       id: user.id, 
       email: user.email, 
       nickname: trimmed,
     });
+
     setEditingNickname(false);
     setNicknameError(null);
     alert('닉네임이 변경되었습니다!');
@@ -98,11 +110,12 @@ const Mypage = () => {
         <div className="px-4 pt-16 pb-6 space-y-4">
           <h2 className="text-lg font-bold  text-blue-400 text-center">마이페이지</h2>
 
-          {/* 닉네임 */}
+          {/* 닉네임 편집 섹션 */}
           <div className="border border-gray-200 rounded-xl px-4 py-3 shadow-sm space-y-1.5">
             <p className="text-sm font-semibold text-gray-600 mb-2">닉네임</p>
 
             {editingNickname ? (
+              // 닉네임 입력 중일 때
               <div className="flex items-center gap-2">
                 <input
                   autoFocus
@@ -112,6 +125,7 @@ const Mypage = () => {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleNicknameUpdate();
                     else if (e.key === 'Escape') {
+                      // 취소 처리
                       setNicknameInput(user?.nickname ?? '');
                       setEditingNickname(false);
                       setNicknameError(null);
@@ -137,6 +151,7 @@ const Mypage = () => {
                 </button>
               </div>
             ) : (
+              // 닉네임 보기 모드일 때
               <div className="flex items-center gap-1">
                 <p className="text-sm font-medium text-gray-900">{user?.nickname}</p>
                 <button
@@ -148,12 +163,13 @@ const Mypage = () => {
               </div>
             )}
 
+            {/* 닉네임 유효성 오류 메시지 */}
             {nicknameError && (
               <p className="text-xs text-red-500 mt-1">{nicknameError}</p>
             )}
           </div>
 
-          {/* 저장된 플레이리스트 */}
+          {/* 저장된 플레이리스트 목록 */}
           <div className="border border-gray-200 rounded-xl px-4 py-3 shadow-sm">
             <p className="text-sm font-semibold text-gray-600 mb-2">📂 저장된 플레이리스트</p>
             {savedPlaylists.length > 0 ? (

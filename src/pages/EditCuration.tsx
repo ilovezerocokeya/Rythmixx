@@ -2,27 +2,34 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { fetchVideoInfo } from '@/components/apis/youtube';
-import { useCurationStore, CategoryType, CurationVideo } from '@/stores/curationStore';
-import { deleteCurationVideo, fetchCurationVideosByCategory } from '@/components/apis/supabaseCuration';
+import {
+  useCurationStore,
+  CurationVideo,
+  CategoryType,
+} from '@/stores/useCurationStore';
+import {
+  deleteCurationVideo,
+  fetchCurationVideosByCategory,
+} from '@/components/apis/supabaseCuration';
 import { extractVideoId } from '@/utils/youtube';
 import { supabase } from '@/supabase/createClient';
-import { Link } from 'react-router-dom';
-import PlaylistSlider from '@/components/playlist/PlaylistSlider';
+import { useNavigate } from 'react-router-dom';
+import PlaylistSlider from '@/components/slider/PlaylistSlider';
+import MainCurationPlaylistSlider from '@/components/slider/MainCurationPlaylistSlider';
+import {
+  CATEGORY_LABELS,
+  CATEGORY_ORDER,
+} from '@/constants/curation'; 
 
 type ExtendedCategoryType = CategoryType | 'all';
 
-const CATEGORY_LABELS: Record<ExtendedCategoryType, string> = {
-  all: '전체',
-  mood: '기분별',
-  weather: '날씨별',
-  genre: '장르별',
-  situation: '상황별',
-  place: '장소별',
-};
-
 const EditCurationPage = () => {
   const [videoId, setVideoId] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<ExtendedCategoryType>('mood');
+  const [selectedCategory, setSelectedCategory] =
+    useState<ExtendedCategoryType>('all');
+  const navigate = useNavigate();
+  const [hasLoadedAll, setHasLoadedAll] = useState(false);
+
 
   const {
     curationVideosByCategory,
@@ -31,30 +38,40 @@ const EditCurationPage = () => {
     setCurationVideos,
   } = useCurationStore();
 
-  // 선택된 카테고리에 따라 해당 카테고리의 영상 목록을 Supabase에서 불러오기
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      const email = data?.user?.email;
+
+      if (error || email !== 'ilovezerocokeya@gmail.com') {
+        alert('접근 권한이 없습니다.');
+        navigate('/');
+      }
+    };
+
+    checkAdmin();
+  }, []);
+
   useEffect(() => {
     const loadVideos = async () => {
       if (selectedCategory === 'all') {
-        const allKeys: CategoryType[] = ['mood', 'weather', 'genre', 'situation', 'place'];
-
-        // 이미 모든 카테고리의 영상이 로딩되었으면 중단
-        const alreadyLoaded = allKeys.every((key) => curationVideosByCategory[key]?.length > 0);
-        if (alreadyLoaded) return;
+        if (hasLoadedAll) return;
 
         try {
           const results = await Promise.all(
-            allKeys.map((key) => fetchCurationVideosByCategory(key))
+            CATEGORY_ORDER.map((key) => fetchCurationVideosByCategory(key))
           );
           results.forEach((fetched, index) => {
-            const key = allKeys[index];
+            const key = CATEGORY_ORDER[index];
             setCurationVideos(key, fetched);
           });
+          setHasLoadedAll(true);
         } catch (error) {
           console.error('전체 카테고리 데이터 로딩 실패:', error);
         }
       } else {
-        // 단일 카테고리: 이미 로드된 경우 생략
-        if (curationVideosByCategory[selectedCategory]?.length > 0) return;
+        const targetList = curationVideosByCategory[selectedCategory];
+        if (targetList && targetList.length > 0) return;
 
         try {
           const fetched = await fetchCurationVideosByCategory(selectedCategory);
@@ -66,9 +83,8 @@ const EditCurationPage = () => {
     };
 
     loadVideos();
-  }, [selectedCategory, curationVideosByCategory]);
+  }, [selectedCategory]);
 
-  // 유튜브 영상 추가 처리
   const handleAdd = async () => {
     const trimmed = videoId.trim();
     if (!trimmed || selectedCategory === 'all') return;
@@ -79,22 +95,21 @@ const EditCurationPage = () => {
       return;
     }
 
-    // 중복 체크
-    const isAlreadyAdded = curationVideosByCategory[selectedCategory]?.some(v => v.id === videoIdOnly);
+    const isAlreadyAdded = curationVideosByCategory[selectedCategory]?.some(
+      (v) => v.id === videoIdOnly
+    );
     if (isAlreadyAdded) {
       alert('이미 추가된 영상입니다.');
       return;
     }
 
     try {
-      // 유튜브 API로 영상 정보 조회
       const data = await fetchVideoInfo(videoIdOnly);
       if (!data) return alert('잘못된 영상입니다.');
 
       const title = data.snippet.title;
       const thumbnail = data.snippet.thumbnails?.medium?.url || '';
 
-      // 전역 스토어에 추가
       const newItem: CurationVideo = {
         id: videoIdOnly,
         title,
@@ -111,7 +126,6 @@ const EditCurationPage = () => {
     }
   };
 
-  // 영상 삭제 처리 (스토어와 Supabase 동시 반영)
   const handleDelete = async (videoId: string) => {
     if (selectedCategory === 'all') return;
 
@@ -124,7 +138,6 @@ const EditCurationPage = () => {
     }
   };
 
-  // 영상 저장 처리: 현재 카테고리의 영상들을 Supabase에 업서트
   const handleSave = async () => {
     if (selectedCategory === 'all') return;
 
@@ -135,15 +148,19 @@ const EditCurationPage = () => {
     }
 
     try {
+      const payload = videos.map((video) => ({
+        video_id: video.id,
+        title: video.title,
+        thumbnail_url: video.thumbnail_url,
+        youtube_url: video.youtube_url,
+        category: selectedCategory,
+      }));
+
       const { error } = await supabase
-        .from('curation_videos')
-        .upsert(
-          videos.map((video) => ({
-            ...video,
-            category: selectedCategory,
-          })),
-          { onConflict: "video_id,category" }
-        );
+        .from('curation')
+        .upsert(payload, {
+          onConflict: 'video_id,category',
+        });
 
       if (error) throw error;
 
@@ -154,117 +171,152 @@ const EditCurationPage = () => {
     }
   };
 
-  // 카테고리별 슬라이더 구성 정보 생성
   const sliders = useMemo(() => {
     if (selectedCategory === 'all') {
-      // 전체 카테고리: 비어있는 카테고리는 제외하고 슬라이더 생성
-      return (Object.entries(curationVideosByCategory) as [CategoryType, CurationVideo[]][])
-        .filter(([, videos]) => videos.length > 0)
-        .map(([category, videos]) => ({
-          category,
-          title: `${CATEGORY_LABELS[category]} 추천 미리보기`,
-          playlists: videos.map((item) => ({
-            id: item.id,
-            title: item.title,
-            imageUrl: item.imageUrl,
-            onClick: () => window.open(item.youtube_url, '_blank'),
-            onDelete: undefined,
-          })),
-        }));
-    }
-
-    // 단일 카테고리: 삭제 버튼 포함
-    return [
-      {
-        category: selectedCategory,
-        title: `${CATEGORY_LABELS[selectedCategory]} 추천 미리보기`,
-        playlists: curationVideosByCategory[selectedCategory]?.map((item) => ({
+      return CATEGORY_ORDER.filter(
+        (key) => curationVideosByCategory[key]?.length > 0
+      ).map((category) => ({
+        category,
+        title: `${CATEGORY_LABELS[category]} 추천 미리보기`,
+        playlists: curationVideosByCategory[category].map((item) => ({
           id: item.id,
           title: item.title,
           imageUrl: item.imageUrl,
           onClick: () => window.open(item.youtube_url, '_blank'),
-          onDelete: () => handleDelete(item.id),
-        })) ?? [],
+          onDelete: undefined,
+        })),
+      }));
+    }
+
+    return [
+      {
+        category: selectedCategory,
+        title: `${CATEGORY_LABELS[selectedCategory]} 추천 미리보기`,
+        playlists:
+          curationVideosByCategory[selectedCategory]?.map((item) => ({
+            id: item.id,
+            title: item.title,
+            imageUrl: item.imageUrl,
+            onClick: () => window.open(item.youtube_url, '_blank'),
+            onDelete: () => handleDelete(item.id),
+          })) ?? [],
       },
     ];
   }, [curationVideosByCategory, selectedCategory]);
 
   return (
-    <main className="flex items-center justify-center w-full min-h-screen bg-gray-900 px-4">
-      <div className="relative w-full max-w-[400px] h-[680px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
-
-        {/* 상단 헤더 */}
-        <div className="flex items-center justify-between px-6 pt-6 shrink-0">
-          <Link to="/" className="text-base font-bold text-blue-600 hover:underline">
-            Rythmixx
-          </Link>
-          <h1 className="text-base font-semibold text-gray-800 text-center w-full -ml-14">
-            큐레이션 관리자
-          </h1>
-        </div>
-
-        {/* 본문 영역 */}
-        <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-4">
-
-          {/* 카테고리 선택 드롭다운 */}
-          <div className="space-y-3">
-            <label className="block font-medium text-gray-700">카테고리 선택</label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value as ExtendedCategoryType)}
-              className="w-full p-2 border rounded-md"
-            >
-              {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 영상 추가 입력 영역 (all 카테고리일 때는 숨김) */}
-          {selectedCategory !== 'all' && (
-            <>
-              <input
-                type="text"
-                placeholder="유튜브 영상 URL 또는 ID 입력"
-                value={videoId}
-                onChange={(e) => setVideoId(e.target.value)}
-                className="w-full p-2 border rounded-md"
-              />
-              <button
-                onClick={handleAdd}
-                className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 active:scale-95 transition-transform duration-150"
-              >
-                영상 추가
-              </button>
-            </>
-          )}
-
-          {/* 슬라이더 리스트 (빈 플레이리스트는 제외) */}
-          {sliders
-            .filter((slider) => slider.playlists.length > 0)
-            .map((slider) => (
-              <PlaylistSlider
-                key={slider.category}
-                title={slider.title}
-                playlists={slider.playlists}
-              />
-            ))}
-
-          {/* 저장 버튼 (단일 카테고리에서만 노출) */}
-          {selectedCategory !== 'all' && (
-            <button
-              onClick={handleSave}
-              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 active:scale-95 transition-transform duration-150 mt-6"
-            >
-              저장하기
-            </button>
-          )}
-        </div>
+  <main className="flex items-center justify-center w-full min-h-screen bg-gray-900 px-4">
+    <div className="relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
+      <div className="relative flex items-center justify-between px-6 pt-6 shrink-0">
+        <button
+          onClick={() => navigate('/')}
+          className="text-base font-bold text-blue-600 hover:text-blue-700"
+        >
+          Rythmixx
+        </button>
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-base font-semibold text-gray-800 text-center pointer-events-none">
+          큐레이션 관리자
+        </h1>
       </div>
-    </main>
-  );
+
+      <div className="flex-1 overflow-y-auto px-6 pt-4 pb-6 space-y-4 scroll-container">
+        <div className="space-y-3">
+          <label className="block font-medium text-gray-700">
+            카테고리 선택
+          </label>
+          <select
+            value={selectedCategory}
+            onChange={(e) =>
+              setSelectedCategory(e.target.value as ExtendedCategoryType)
+            }
+            className="w-full p-2 border rounded-md"
+          >
+            {(['all', ...CATEGORY_ORDER] as ExtendedCategoryType[]).map(
+              (key) => (
+                <option key={key} value={key}>
+                  {CATEGORY_LABELS[key]}
+                </option>
+              )
+            )}
+          </select>
+        </div>
+
+        {selectedCategory !== 'all' && (
+          <>
+            <input
+              type="text"
+              placeholder="유튜브 영상 URL 또는 ID 입력"
+              value={videoId}
+              onChange={(e) => setVideoId(e.target.value)}
+              className="w-full p-2 border rounded-md"
+            />
+            <button
+              onClick={handleAdd}
+              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 active:scale-95 transition-transform duration-150"
+            >
+              영상 추가
+            </button>
+          </>
+        )}
+
+        {/* 슬라이더 분기 처리 */}
+        {selectedCategory === 'all' ? (
+          <>
+            {curationVideosByCategory['thisWeek']?.length > 0 && (
+              <MainCurationPlaylistSlider
+                playlists={curationVideosByCategory['thisWeek'].map((item) => ({
+                  id: item.id,
+                  title: item.title,
+                  imageUrl: item.imageUrl,
+                  onDelete: () => handleDelete(item.id),
+                  onClick: () => window.open(item.youtube_url, '_blank'),
+                }))}
+              />
+            )}
+            {sliders
+              .filter((slider) => slider.category !== 'thisWeek')
+              .map((slider) => (
+                <PlaylistSlider
+                  key={slider.category}
+                  title={slider.title}
+                  playlists={slider.playlists}
+                />
+              ))}
+          </>
+        ) : selectedCategory === 'thisWeek' ? (
+          <MainCurationPlaylistSlider
+            playlists={
+              curationVideosByCategory['thisWeek']?.map((item) => ({
+                id: item.id,
+                title: item.title,
+                imageUrl: item.imageUrl,
+                onDelete: () => handleDelete(item.id),
+                onClick: () => window.open(item.youtube_url, '_blank'),
+              })) ?? []
+            }
+          />
+        ) : (
+          sliders.map((slider) => (
+            <PlaylistSlider
+              key={slider.category}
+              title={slider.title}
+              playlists={slider.playlists}
+            />
+          ))
+        )}
+
+        {selectedCategory !== 'all' && (
+          <button
+            onClick={handleSave}
+            className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 active:scale-95 transition-transform duration-150 mt-6"
+          >
+            저장하기
+          </button>
+        )}
+      </div>
+    </div>
+  </main>
+);
 };
 
 export default EditCurationPage;

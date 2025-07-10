@@ -1,5 +1,5 @@
 import WeatherDisplay from '../weather/WeatherDisplay';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useModalStore } from '@/stores/useModalStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { supabase } from '@/supabase/createClient';
@@ -9,6 +9,7 @@ const Header = () => {
   const openModal = useModalStore((state) => state.open);
   const { user, logout } = useAuthStore();
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
   const isGuest = !user;
 
   const handleLogout = async () => {
@@ -24,9 +25,12 @@ const Header = () => {
     <div className="absolute top-0 left-0 w-full px-4 py-2 flex justify-between items-center z-30 bg-white/80 backdrop-blur-sm border-b border-gray-200">
       <div className="flex items-center space-x-3">
         {/* 로고 */}
-        <Link to="/" className="text-base font-bold text-blue-600 hover: cursor-pointer">
-          Rythmixx
-        </Link>
+        <button
+            onClick={() => navigate('/')}
+            className="text-base font-bold text-blue-600 hover:text-blue-700"
+          >
+            Rythmixx
+          </button>
 
         {/* 날씨 */}
         <WeatherDisplay />
@@ -42,12 +46,12 @@ const Header = () => {
         </button>
 
         {!isGuest && (
-          <Link
-            to="/mypage"
+          <button
+            onClick={() => navigate('/mypage')}
             className="px-3 py-[4px] text-[11px] font-medium text-blue-500 border border-blue-500 rounded-full hover:bg-blue-500 hover:text-white transition-all"
           >
             🎶
-          </Link>
+          </button>
         )}
 
         {/* 로그인 / 로그아웃 버튼 */}

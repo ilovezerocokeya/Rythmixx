@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/supabase/createClient';
 import { useAuthStore } from '@/stores/useAuthStore';
+import Header from '@/components/ui/Header';
 
 const Callback = () => {
   const navigate = useNavigate();
@@ -84,7 +85,21 @@ const Callback = () => {
     processAuth();
   }, [navigate, login]);
 
-  return <div className="text-center mt-20 text-lg">로그인 처리 중입니다...</div>;
+  return (
+    <main className="flex justify-center items-center min-h-screen bg-gray-900">
+      <section className="relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
+        {/* Header 고정 */}
+        <div className="z-10">
+          <Header />
+        </div>
+
+        {/* 본문 */}
+        <div className="flex-1 flex items-center justify-center px-4 text-lg text-gray-700">
+          ⏳ 로그인 처리 중입니다...⌛️
+        </div>
+      </section>
+    </main>
+  );
 };
 
 export default Callback;

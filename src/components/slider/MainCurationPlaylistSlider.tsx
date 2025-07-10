@@ -60,7 +60,7 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
         </div>
       )}
 
-      <div className="w-full flex flex-col rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-white">
+      <div className="w-full h-[280px] flex flex-col rounded-2xl overflow-hidden border border-gray-200 shadow-md bg-white">
         <div className="relative w-full h-[260px]">
           <motion.div animate={controls} className="flex w-full h-full">
             {playlists.map((playlist) => (
@@ -104,7 +104,7 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
           </button>
 
           {/* 인디케이터 */}
-          <div className="absolute bottom-0 left-0 w-full px-4 py-3 bg-white/80 backdrop-blur-md z-20">
+          <div className="relative bottom-1 left-0 w-full px-4 bg-white/80 backdrop-blur-md z-10">
             <div className="flex justify-center space-x-2 mt-2">
               {playlists.map((_, index) => (
                 <div

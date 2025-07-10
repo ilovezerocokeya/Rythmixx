@@ -1,4 +1,8 @@
+import { useLikeStore } from "@/stores/useLikeStore";
+import { useModalStore } from "@/stores/useModalStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import clsx from "clsx";
+import { motion } from "framer-motion";
 
 type CurationVideoCardProps = {
   id: string;
@@ -10,22 +14,26 @@ type CurationVideoCardProps = {
 };
 
 const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
+  id,
   title,
   imageUrl,
   onClick,
   onDelete,
   variant = "small",
 }) => {
+  const isLiked = useLikeStore((state) => !!state.liked[id]);
+  const toggleLike = useLikeStore((state) => state.toggleLike);
+  const user = useAuthStore((state) => state.user);
+  const openLoginModal = useModalStore((state) => state.open);
+
   return (
     <div
       className={clsx(
         "relative flex-shrink-0 snap-start bg-white rounded-lg shadow p-2",
-        variant === "small"
-          ? "w-[180px]"
-          : "w-[340px] h-[240px]"
+        variant === "small" ? "w-[180px]" : "w-[340px] h-[240px]"
       )}
     >
-      {/* 썸네일 이미지 */}
+      {/* 썸네일 */}
       <img
         src={imageUrl}
         alt={title}
@@ -37,7 +45,7 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
         draggable={false}
       />
 
-      {/* 플레이리스트 제목 */}
+      {/* 타이틀 */}
       <div
         className={clsx(
           "mt-2 text-[13px] font-medium leading-snug line-clamp-2 text-center select-none cursor-default",
@@ -60,6 +68,39 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
           ×
         </button>
       )}
+
+      {/* 좋아요 버튼 */}
+      <motion.button
+        key={isLiked ? "liked" : "unliked"}
+        animate={{ scale: [1, 1.4, 1] }}
+        transition={{ duration: 0.3 }}
+        onClick={(e) => {
+          e.stopPropagation();
+
+          console.log("[디버그] 좋아요 버튼 클릭됨");
+          console.log("현재 유저:", user);
+          console.log("현재 playlist_id:", id);
+          console.log("현재 좋아요 상태:", isLiked);
+
+          if (!user) {
+            console.log("[디버그] 로그인 안 되어 있음 → 로그인 모달 실행");
+            openLoginModal("login");
+            return;
+          }
+
+          toggleLike({
+            playlist_id: id,
+            title,
+            image_url: imageUrl,
+          });
+
+          console.log("[디버그] toggleLike 호출 완료");
+        }}
+        className="absolute top-1 right-1 bg-white/90 text-red-500 text-2xl rounded-full w-7 h-7 flex items-center justify-center shadow ring-1 ring-white/80 hover:scale-110 transition"
+        title="좋아요"
+      >
+        {isLiked ? "♥" : "♡"}
+      </motion.button>
     </div>
   );
 };

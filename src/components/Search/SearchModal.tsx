@@ -1,47 +1,49 @@
 'use client';
 
 import { useMemo } from 'react';
-import { usePlaylistStore } from '@/stores/usePlaylistStore';
 import { useSearchStore } from '@/stores/useSearchStore';
 import { useModalStore } from '@/stores/useModalStore';
+import { useCurationStore } from '@/stores/useCurationStore';
 import { useDebounce } from '@/hooks/useDebounce';
-import { HighlightedText } from '@/components/search/HighlightedText';
+import { CATEGORY_LABELS } from '@/constants/curation';
 
 const SearchModal = () => {
-  const { keyword, setKeyword, clearKeyword } = useSearchStore();
-  const { allPlaylists } = usePlaylistStore();
+  
+  const { keyword, setKeyword, clearKeyword } = useSearchStore(); 
+  const { curationVideosByCategory } = useCurationStore(); 
   const close = useModalStore((state) => state.close);
 
   // 모달 외부 클릭 시 닫기
   const handleOverlayClick = () => close();
   const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
 
-  const debouncedKeyword = useDebounce(keyword, 300); // 키워드 입력 시 300ms 지연 후 반영되도록 디바운싱 처리
+  // 검색어 입력 후 300ms 지연 처리
+  const debouncedKeyword = useDebounce(keyword, 300);
 
-  // 디바운싱된 키워드를 소문자 기준으로 공백 단위 분리
+  // 검색어를 소문자로 변환하고 공백 기준으로 분리
   const keywords = useMemo(() => {
     const trimmed = debouncedKeyword.trim().toLowerCase();
-    if (!trimmed) return [];
-    return trimmed.split(/\s+/);
+    return trimmed ? trimmed.split(/\s+/) : [];
   }, [debouncedKeyword]);
 
-  // 입력한 키워드가 포함된 플레이리스트 필터링
+  // 모든 큐레이션 영상을 배열로 변환
+  const allCurationVideos = useMemo(() => {
+    return Object.values(curationVideosByCategory).flat();
+  }, [curationVideosByCategory]);
+
+  // 검색어와 제목 또는 카테고리 라벨이 일치하는 영상 필터링
   const filtered = useMemo(() => {
     if (keywords.length === 0) return [];
 
-    return allPlaylists.filter((pl) => {
-      const title = pl.title.toLowerCase();
-      const genre = pl.genre?.toLowerCase?.() ?? '';
-      const keywordsInItem = pl.keywords?.map((kw: string) => kw.toLowerCase()) ?? [];
+    return allCurationVideos.filter((video) => {
+      const title = video.title.toLowerCase();
+      const categoryLabel = CATEGORY_LABELS[video.category].toLowerCase();
 
-      // 제목, 장르, 키워드 중 하나라도 포함되면 필터링 결과에 포함
       return keywords.some((kw) =>
-        title.includes(kw) ||
-        genre.includes(kw) ||
-        keywordsInItem.some((itemKw) => itemKw.includes(kw))
+        title.includes(kw) || categoryLabel.includes(kw)
       );
     });
-  }, [keywords, allPlaylists]);
+  }, [keywords, allCurationVideos]);
 
   return (
     <div
@@ -52,13 +54,13 @@ const SearchModal = () => {
         onClick={stopPropagation}
         className="w-[320px] bg-white rounded-2xl shadow-xl border border-blue-600 overflow-hidden"
       >
-        {/* 검색 입력창 및 닫기 버튼 */}
+        {/* 검색 입력창 */}
         <div className="relative">
           <input
             autoFocus
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="🔍 플레이리스트 검색"
+            placeholder="큐레이션 영상 검색"
             className="w-full px-4 py-3 pr-10 text-base font-medium border-0 border-b border-gray-200 focus:outline-none focus:ring-0"
           />
           {keyword && (
@@ -72,21 +74,23 @@ const SearchModal = () => {
           )}
         </div>
 
-        {/* 검색어가 존재하면 필터링된 결과 표시 */}
+        {/* 검색 결과 영역 */}
         {keyword && (
           <div className="max-h-[280px] overflow-y-auto divide-y divide-gray-100">
             {filtered.length > 0 ? (
-              filtered.map((pl) => (
+              filtered.map((video) => (
                 <div
-                  key={pl.id}
-                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition"
+                  key={video.id}
+                  onClick={() => window.open(video.youtube_url, '_blank')}
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer transition"
                 >
-                  {/* 제목과 장르에 하이라이트 적용 */}
-                  <p className="text-sm font-semibold text-gray-900">
-                    <HighlightedText text={pl.title} keywords={keywords} />
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    <HighlightedText text={pl.genre ?? ''} keywords={keywords} />
+                  <img
+                    src={video.imageUrl}
+                    alt={video.title}
+                    className="w-[120px] aspect-[3/2] object-cover rounded-md flex-shrink-0"
+                  />
+                  <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                    {video.title}
                   </p>
                 </div>
               ))

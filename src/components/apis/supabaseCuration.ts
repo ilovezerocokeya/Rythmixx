@@ -7,6 +7,7 @@ interface CurationVideo {
   title: string;
   thumbnail_url: string;
   youtube_url: string;
+  category: CategoryType;
 }
 
 // 큐레이션 영상 추가
@@ -75,7 +76,7 @@ export const deleteCurationVideo = async (
 export const fetchCurationVideosByCategory = async (category: CategoryType) => {
   const { data, error } = await supabase
     .from("curation")
-    .select("video_id, title, thumbnail_url, youtube_url, order_index")
+    .select("video_id, title, thumbnail_url, youtube_url, order_index, category")
     .eq("category", category)
     .order("order_index", { ascending: true });
 
@@ -91,5 +92,6 @@ export const fetchCurationVideosByCategory = async (category: CategoryType) => {
     thumbnail_url: item.thumbnail_url,
     youtube_url: item.youtube_url,
     imageUrl: item.thumbnail_url,
+    category: item.category as CategoryType,
   }));
 };

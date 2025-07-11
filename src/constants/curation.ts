@@ -15,7 +15,6 @@ export type CategoryType =
   | 'energy'
   | 'trend';
 
-// 여기에 'all' 포함한 타입 정의
 export type ExtendedCategoryType = CategoryType | 'all';
 
 // 카테고리 라벨

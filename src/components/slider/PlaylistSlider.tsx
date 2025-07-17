@@ -76,7 +76,7 @@ const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => 
             className="flex cursor-grab active:cursor-grabbing space-x-3"
             style={{ width: `${TOTAL_WIDTH(totalCards)}px` }} // 슬라이더 너비 설정
             onDragStart={() => setIsDragging(true)} // 드래그 시작
-            onDragEnd={(event, info) => {
+            onDragEnd={(_, info) => {
               setTimeout(() => setIsDragging(false), 150); // 클릭 방지용 지연 해제
               if (info.velocity.x < -50) scroll("right"); // 오른쪽으로 슬라이드
               else if (info.velocity.x > 50) scroll("left"); // 왼쪽으로 슬라이드

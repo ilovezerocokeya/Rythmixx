@@ -34,10 +34,8 @@ const Home = () => {
 
   // 개발 환경에서만 상태 변경 로그 출력
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Home] curationVideosByCategory 상태 변경 감지:', curationVideosByCategory);
-    }
-  }, [curationVideosByCategory]);
+    useCurationStore.getState().fetchAllCurationVideos();
+  }, []);
 
   // 각 카테고리별 슬라이더용 데이터 포맷 캐싱
   const formattedPlaylistsByCategory = useMemo(() => {

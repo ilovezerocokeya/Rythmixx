@@ -34,7 +34,7 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
           ? "w-[95px] h-[100px]"
           : variant === "small"
           ? "w-[180px]"
-          : "w-[340px] h-[240px]"
+          : "w-[300px] h-[240px]"
       )}
     >
       {/* 썸네일 */}
@@ -67,44 +67,40 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
       {/* 타이틀 */}
       <div
         className={clsx(
-          "mt-[6px] font-medium text-center select-none leading-tight cursor-default line-clamp-2",
+          "mt-[8px] font-medium text-center select-none leading-tight cursor-default line-clamp-2",
           variant === "xs"
             ? "text-[10px] h-[26px]"
             : variant === "small"
             ? "text-[13px] h-[34px]"
-            : "text-[14px] h-[40px] px-4"
+            : "text-[14px] h-[36px] px-4"
         )}
       >
         {title}
       </div>
 
-      {/* 삭제 버튼 */}
-      {onDelete && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="absolute top-2 right-2 bg-white/20 hover:bg-white/40 text-white w-6 h-6 flex items-center justify-center rounded-full text-base font-semibold shadow-md transition-all duration-150"
-          title="삭제"
-        >
-          ×
-        </button>
-      )}
-
-      {/* 좋아요 버튼 */}
+      {/* 좋아요 & 삭제 버튼 */}
+      {onDelete ? (
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+        className="absolute top-2 right-2 bg-white/20 hover:bg-white/40 text-white w-6 h-6 flex items-center justify-center rounded-full text-base font-semibold shadow-md transition-all duration-150"
+        title="삭제"
+      >
+        ×
+      </button>
+    ) : (
       <motion.button
         key={isLiked ? "liked" : "unliked"}
         animate={{ scale: [1, 1.4, 1] }}
         transition={{ duration: 0.3 }}
         onClick={(e) => {
           e.stopPropagation();
-
           if (!user) {
             openLoginModal("login");
             return;
           }
-
           toggleLike({
             playlist_id: id,
             title,
@@ -122,6 +118,7 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
       >
         {isLiked ? "♥" : "♡"}
       </motion.button>
+    )}
     </div>
   );
 };

@@ -29,9 +29,9 @@ const TOTAL_WIDTH = (cardCount: number) =>
 // 메인 슬라이더 컴포넌트
 const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => {
   const totalCards = playlists.length;
-  const controls = useAnimation(); // 슬라이드 애니메이션 제어
-  const [isDragging, setIsDragging] = useState(false); // 드래그 중 여부
-  const [, setCurrentIndex] = useState(0); // 현재 인덱스 (뷰용)
+  const controls = useAnimation(); 
+  const [isDragging, setIsDragging] = useState(false);
+  const [, setCurrentIndex] = useState(0);
 
   // 좌우로 슬라이드할 때 실행되는 함수
   const scroll = useCallback(
@@ -61,8 +61,8 @@ const PlaylistSlider: React.FC<PlaylistSliderProps> = ({ title, playlists }) => 
       )}
 
       {/* 카드 슬라이더 영역 */}
-      <div className="relative w-full px-1 py-1 bg-white border border-gray-200 shadow-md rounded-2xl">
-        <div className="relative w-full h-[190px] overflow-hidden pr-2">
+      <div className="relative w-full px-2 py-2 bg-white border border-gray-200 shadow-md rounded-2xl">
+        <div className="relative w-full h-[180px] overflow-hidden pr-2">
           <motion.div
             animate={controls} // 외부에서 제어하는 애니메이션 적용
             drag="x" // 수평 드래그 가능

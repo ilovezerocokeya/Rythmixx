@@ -3,12 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useModalStore } from '@/stores/useModalStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { supabase } from '@/supabase/createClient';
-import { useState } from 'react';
 
 const Header = () => {
   const openModal = useModalStore((state) => state.open);
   const { user, logout } = useAuthStore();
-  const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const isGuest = !user;
 
@@ -18,7 +16,8 @@ const Header = () => {
       alert('로그아웃 실패');
       return;
     }
-    logout(); // 전역 상태 초기화
+    logout(); 
+    location.reload();
   };
 
   return (
@@ -29,15 +28,15 @@ const Header = () => {
             onClick={() => navigate('/')}
             className="text-base font-bold text-blue-600 hover:text-blue-700"
           >
-            Rythmixx
-          </button>
+          Rythmixx
+        </button>
 
         {/* 날씨 */}
         <WeatherDisplay />
       </div>
 
       <div className="flex items-center space-x-2">
-        {/* 검색 버튼 (항상 표시) */}
+        {/* 검색 버튼 */}
         <button
           onClick={() => openModal('search')}
           className="px-3 py-[4px] text-[11px] font-medium text-gray-700 border border-gray-200 rounded-full hover:bg-gray-100 transition-all"
@@ -65,11 +64,9 @@ const Header = () => {
         ) : (
           <button
             onClick={handleLogout}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
             className="px-3 py-[4px] text-[11px] font-medium text-gray-600 border border-gray-300 rounded-full hover:bg-gray-100 transition-all"
           >
-            {isHovered ? '로그아웃' : user.nickname}
+            로그아웃
           </button>
         )}
       </div>

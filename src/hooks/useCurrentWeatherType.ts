@@ -5,8 +5,7 @@ export const useCurrentWeatherType = () => {
   const weather = useWeatherStore((state) => state.weather);
   const timeOfDay = useWeatherStore((state) => state.timeOfDay);
 
-  // 날씨 값이 없을 경우를 대비하여 소문자로 변환
-  const normalized = (weather ?? "").toLowerCase();
+  const normalized = (weather ?? "").toLowerCase(); // 날씨 값이 없을 경우를 대비하여 소문자로 변환
 
   // 외부 API에서 받은 날씨 값을 내부에서 사용할 키로 매핑
   const mapping: Record<string, string> = {

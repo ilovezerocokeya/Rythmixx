@@ -60,7 +60,7 @@ const SearchModal = () => {
             autoFocus
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            placeholder="큐레이션 영상 검색"
+            placeholder="🔎 플레이리스트 검색"
             className="w-full px-4 py-3 pr-10 text-base font-medium border-0 border-b border-gray-200 focus:outline-none focus:ring-0"
           />
           {keyword && (

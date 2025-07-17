@@ -85,6 +85,12 @@ const Mypage = () => {
     <div className="flex justify-center items-center min-h-screen bg-gray-900">
       <div className="relative w-full max-w-[360px] min-h-[640px] bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
         <Header />
+
+        {/* Footer */}
+        <div className="absolute bottom-0 left-0 right-0 h-[50px] z-10 flex items-center justify-center border-t border-gray-200 bg-white">
+          <p className="text-xs text-gray-500">© 2025 Rythmixx</p>
+        </div>
+        
         <div className="px-4 pt-16 pb-6 space-y-4">
           <h2 className="text-lg font-bold text-blue-400 text-center">My페이지</h2>
 
@@ -124,7 +130,7 @@ const Mypage = () => {
           {/* 플레이리스트 영역 */}
           <div className="border border-gray-200 rounded-xl px-5 py-3 shadow-sm">
             <p className="text-sm font-semibold text-gray-600 mb-2">
-              <span className="text-red-500">♥</span> My 플리zip
+               '{user.nickname}'님의 플레이리스트 <span className="text-red-500">♥</span>
             </p>
             {likedPlaylists.length > 0 ? (
               <>

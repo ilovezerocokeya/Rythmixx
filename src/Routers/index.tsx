@@ -3,7 +3,7 @@ import Home from '@/home';
 import SignupPage from '@/pages/SignupPage';
 import Callback from '@/pages/auth/Callback';
 import Mypage from '@/pages/MyPage';
-import EditCurationPage from '@/pages/EditCuration';
+import EditCurationPage from '@/pages/EditCurationPage';
 
 export const router = createBrowserRouter([
   {

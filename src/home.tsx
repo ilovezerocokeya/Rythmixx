@@ -55,14 +55,19 @@ const Home = () => {
 
   return (
     <main className="flex justify-center items-center min-h-screen bg-gray-900">
-      <section className="relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
+      <section className="relative w-full max-w-[360px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="z-10">
+        <div className="absolute top-0 left-0 shrink-0 right-0 h-[50px] z-10">
           <Header />
         </div>
-      
+
+        {/* Footer */}
+        <div className="absolute bottom-0 left-0 right-0 h-[50px] z-10 flex items-center justify-center border-t border-gray-200 bg-white">
+          <p className="text-xs text-gray-500">© 2025 Rythmixx</p>
+        </div>
+
         {/* 컨텐츠 */}
-        <div className="flex-1 overflow-y-auto px-4 pt-[50px] pb-6 space-y-10"> 
+        <div className="absolute top-[50px] bottom-[50px] left-0 right-0 overflow-y-auto px-4 pb-6 space-y-10 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent scroll-container">
           {CATEGORY_ORDER.map((category) => {
             const playlists = formattedPlaylistsByCategory[category];
           

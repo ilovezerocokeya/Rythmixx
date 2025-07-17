@@ -2,101 +2,82 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useLocationStore } from "../stores/useLocationStore";
 import { useWeatherStore } from "../stores/useWeatherStore";
 
-const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY; // OpenWeather API 키
-const WEATHER_UPDATE_INTERVAL = 30 * 60 * 1000; // 날씨 정보를 갱신하는 주기 (30분)
-const RETRY_INTERVAL = 5 * 60 * 1000; // API 요청 실패 시 재시도 간격 (5분)
-const MAX_RETRY_COUNT = 3; // API 요청 실패 시 최대 재시도 횟수
+const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
+const WEATHER_UPDATE_INTERVAL = 30 * 60 * 1000;
+const RETRY_INTERVAL = 5 * 60 * 1000; 
+const MAX_RETRY_COUNT = 3;
 
-// 날씨 데이터를 단순화하는 함수
 const simplifyWeather = (weather: string, cloudiness: number) => {
-  const cloudConditions = ["Clouds", "Haze", "Mist", "Fog", "Smoke", "Dust", "Sand", "Ash", "Squall", "Tornado"];
-  const rainConditions = ["Rain", "Drizzle"];
-  const snowConditions = ["Snow"];
-  const thunderstormConditions = ["Thunderstorm"];
-
-  if (weather === "Clear") return cloudiness > 45 ? "Clouds" : "Clear"; // 구름량이 45%보다 많으면 clouds 아니면 clear
-  if (cloudConditions.includes(weather)) return "Clouds";
-  if (rainConditions.includes(weather)) return "Rain";
-  if (snowConditions.includes(weather)) return "Snow";
-  if (thunderstormConditions.includes(weather)) return "Thunderstorm";
-
-  return "Clear"; // 기본값은 맑음
+  if (weather === "Clear") return cloudiness > 45 ? "Clouds" : "Clear";
+  if (["Clouds", "Haze", "Mist", "Fog"].includes(weather)) return "Clouds";
+  if (["Rain", "Drizzle"].includes(weather)) return "Rain";
+  if (weather === "Snow") return "Snow";
+  if (weather === "Thunderstorm") return "Thunderstorm";
+  return "Clear";
 };
 
 const useWeather = () => {
-  const { lat, lon } = useLocationStore(); // 현재 위도, 경도 상태 가져오기
-  const { setWeather, setTimeOfDay } = useWeatherStore(); // Zustand 상태 업데이트 함수 가져오기
-  const lastFetchTime = useRef<number>(0); // 마지막 API 요청 시간을 저장하는 ref
-  const retryCount = useRef<number>(0); // API 요청 실패 시 재시도 횟수를 저장하는 ref
-  const [sunTimes, setSunTimes] = useState<{ sunrise: number; sunset: number } | null>(null); // 일출/일몰 시간 저장
+  const { lat, lon } = useLocationStore();
+  const { setWeather, setTimeOfDay, setWeatherLoaded } = useWeatherStore();
+  const lastFetchTime = useRef<number>(0);
+  const retryCount = useRef<number>(0);
+  const [sunTimes, setSunTimes] = useState<{ sunrise: number; sunset: number } | null>(null);
 
   useEffect(() => {
-    if (!lat || !lon) return; // 위도, 경도가 없으면 API 요청하지 않음
+  // 위치(lat, lon)가 있을 때 날씨 정보를 가져오는 역할
+  if (!lat || !lon) return;
 
-    // OpenWeather API를 호출하여 날씨 데이터를 가져오는 함수
-    const fetchWeather = async () => {
-      const currentTime = Date.now();
+  const fetchWeather = async () => {
+    const now = Date.now();
 
-      // 마지막 요청이 30분 이내이면 API 호출을 건너뜀
-      if (currentTime - lastFetchTime.current < WEATHER_UPDATE_INTERVAL && retryCount.current === 0) {
-        console.log("최근 요청이 30분 이내라 API 요청을 건너뜁니다.");
-        return;
-      }
+    // 마지막 요청 이후 30분 이내면 API 요청 생략
+    if (now - lastFetchTime.current < WEATHER_UPDATE_INTERVAL && retryCount.current === 0) return;
 
-      try {
-        // OpenWeather API 호출
-        const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
-        );
+    try {
+      // 날씨 데이터 요청
+      const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`
+      );
+      if (!res.ok) throw new Error(`API 실패: ${res.status}`);
 
-        if (!response.ok) throw new Error(`API 요청 실패! 상태 코드: ${response.status}`);
+      const data = await res.json();
 
-        const data = await response.json();
+      // 날씨 데이터 가공 및 상태 업데이트
+      const cloudiness = data.clouds?.all ?? 0;
+      const rawWeather = data.weather?.[0]?.main || "Clear";
+      const simplified = simplifyWeather(rawWeather, cloudiness);
 
-        // 구름량과 날씨 상태 변환
-        const cloudiness = data.clouds?.all ?? 0;
-        const rawWeather = data.weather?.[0]?.main || "Clear"; // 기본값: Clear
-        const simplifiedWeather = simplifyWeather(rawWeather, cloudiness);
+      setWeather(simplified); 
+      setSunTimes({ sunrise: data.sys.sunrise, sunset: data.sys.sunset }); // 일출/일몰 시간 저장
+      setWeatherLoaded(true);
+      lastFetchTime.current = now;
+      retryCount.current = 0;
+    } catch {
+      // 요청 실패 시 최대 3회까지 재시도
+      retryCount.current++;
+      if (retryCount.current <= MAX_RETRY_COUNT) setTimeout(fetchWeather, RETRY_INTERVAL);
+      else setWeatherLoaded(true); // 실패해도 앱 멈추지 않도록 처리
+    }
+  };
 
-        setWeather(simplifiedWeather); // Zustand 상태 업데이트
-        lastFetchTime.current = currentTime; // 마지막 요청 시간 저장
-        retryCount.current = 0; // 정상 응답 시 재시도 횟수 초기화
+  fetchWeather(); // 초기 한 번 실행
+  const interval = setInterval(fetchWeather, WEATHER_UPDATE_INTERVAL); // 30분마다 반복 실행
 
-        // 일출/일몰 시간 저장 (처음 요청할 때만)
-        if (!sunTimes) {
-          setSunTimes({
-            sunrise: data.sys.sunrise,
-            sunset: data.sys.sunset,
-          });
-        }
-      } catch (error) {
-        console.error("날씨 정보를 가져오는 데 실패했습니다.", error);
+  return () => clearInterval(interval); // 컴포넌트 언마운트 시 interval 정리
+}, [lat, lon, setWeather, setWeatherLoaded]);
 
-        // 최대 3번까지 재시도
-        if (retryCount.current < MAX_RETRY_COUNT) {
-          retryCount.current += 1;
-          setTimeout(fetchWeather, RETRY_INTERVAL);
-        }
-      }
-    };
 
-    fetchWeather(); // 첫 API 호출 실행
+const timeOfDay = useMemo(() => {
+  // 일출/일몰 시간 기준으로 낮/밤 판별
+  if (!sunTimes) return "day";
+  const now = Math.floor(Date.now() / 1000);
+  return now > sunTimes.sunrise && now < sunTimes.sunset ? "day" : "night";
+}, [sunTimes]);
 
-    // 30분마다 자동 업데이트
-    const interval = setInterval(fetchWeather, WEATHER_UPDATE_INTERVAL);
-    return () => clearInterval(interval);
-  }, [lat, lon, setWeather, sunTimes]);
-
-  // 현재 시간 기준으로 낮/밤 판별
-  const timeOfDay = useMemo(() => {
-    if (!sunTimes) return "day"; // 기본값은 낮
-    const currentTime = Math.floor(Date.now() / 1000); // 초 단위로 변환
-    return currentTime > sunTimes.sunrise && currentTime < sunTimes.sunset ? "day" : "night";
-  }, [sunTimes]);
-
-  useEffect(() => {
-    setTimeOfDay(timeOfDay); // 낮/밤 상태 업데이트
-  }, [timeOfDay, setTimeOfDay]);
+useEffect(() => {
+  // timeOfDay 값이 변경될 때 상태 저장 (낮/밤 구분)
+  setTimeOfDay(timeOfDay);
+}, [timeOfDay, setTimeOfDay]);
 
   return null;
 };

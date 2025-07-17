@@ -7,7 +7,6 @@ const LoginModal = () => {
   // 소셜 로그인 핸들러
   const handleSocialLogin = async (provider: 'google' | 'kakao') => {
     try {
-      // Supabase OAuth 로그인 요청
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {

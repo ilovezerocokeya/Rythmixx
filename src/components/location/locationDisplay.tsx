@@ -1,6 +1,5 @@
 import useReverseGeocoding from '../../hooks/useReverseGeocoding';
 
-// 위치 정보 표시 컴포넌트
 const LocationDisplay = () => {
   const city = useReverseGeocoding(); // 위치 정보 가져오기
 

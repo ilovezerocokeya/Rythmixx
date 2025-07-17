@@ -42,7 +42,7 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
     });
   }, [currentIndex, controls]);
 
-  // 자동 슬라이드 (5초 간격)
+  // 자동 슬라이드
   useEffect(() => {
     const interval = setInterval(() => {
       scroll("right");

@@ -31,8 +31,6 @@ const useReverseGeocoding = () => {
         );
         const data = await response.json();
 
-        console.log("[Geocoding API 응답]:", data);
-
         if (Array.isArray(data) && data.length > 0) {
           // 한글 이름 우선 반환
           setLocation(data[0].local_names?.ko || data[0].name || "알 수 없음");

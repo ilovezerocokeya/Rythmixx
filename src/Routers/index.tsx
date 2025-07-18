@@ -1,9 +1,9 @@
 import { createBrowserRouter } from 'react-router-dom';
-import Home from '@/home';
 import SignupPage from '@/pages/SignupPage';
 import Callback from '@/pages/auth/Callback';
 import Mypage from '@/pages/MyPage';
 import EditCurationPage from '@/pages/EditCurationPage';
+import Home from '@/pages/Home';
 
 export const router = createBrowserRouter([
   {

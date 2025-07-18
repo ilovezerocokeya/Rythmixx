@@ -12,13 +12,10 @@ const SearchModal = () => {
   const { keyword, setKeyword, clearKeyword } = useSearchStore(); 
   const { curationVideosByCategory } = useCurationStore(); 
   const close = useModalStore((state) => state.close);
+  const debouncedKeyword = useDebounce(keyword, 300);
 
-  // 모달 외부 클릭 시 닫기
   const handleOverlayClick = () => close();
   const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
-
-  // 검색어 입력 후 300ms 지연 처리
-  const debouncedKeyword = useDebounce(keyword, 300);
 
   // 검색어를 소문자로 변환하고 공백 기준으로 분리
   const keywords = useMemo(() => {

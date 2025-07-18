@@ -1,17 +1,17 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import useGeolocation from './hooks/useGeolocation';
-import useWeather from './hooks/useWeather';
-import PlaylistSlider from './components/slider/PlaylistSlider';
-import MainCurationPlaylistSlider from './components/slider/MainCurationPlaylistSlider';
-import { useCurationStore } from './stores/useCurationStore';
-import { useAuthStore } from './stores/useAuthStore';
-import { useModalStore } from './stores/useModalStore';
-import LoginModal from './components/login/LoginModal';
-import SearchModal from './components/search/SearchModal';
-import Header from './components/ui/Header';
-import { CATEGORY_LABELS, CATEGORY_ORDER } from './constants/curation';
+import useGeolocation from '../hooks/useGeolocation';
+import useWeather from '../hooks/useWeather';
+import PlaylistSlider from '../components/slider/PlaylistSlider';
+import MainCurationPlaylistSlider from '../components/slider/MainCurationPlaylistSlider';
+import { useCurationStore } from '../stores/useCurationStore';
+import { useAuthStore } from '../stores/useAuthStore';
+import { useModalStore } from '../stores/useModalStore';
+import LoginModal from '../components/login/LoginModal';
+import SearchModal from '../components/search/SearchModal';
+import Header from '../components/ui/Header';
+import { CATEGORY_LABELS, CATEGORY_ORDER } from '../constants/curation';
 
 const Home = () => {
   const { curationVideosByCategory } = useCurationStore();

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useModalStore } from '@/stores/useModalStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { supabase } from '@/supabase/createClient';
-import WeatherDisplay from '../weather/WeatherDisplay';
+import WeatherDisplay from '../Weather/WeatherDisplay';
 
 const Header = () => {
   const openModal = useModalStore((state) => state.open);
@@ -17,7 +17,7 @@ const Header = () => {
       alert('로그아웃 실패');
       return;
     }
-    logout(); 
+    logout();
     location.reload();
   };
 
@@ -26,9 +26,9 @@ const Header = () => {
       <div className="flex items-center space-x-3">
         {/* 로고 */}
         <button
-            onClick={() => navigate('/')}
-            className="text-base font-bold text-blue-600 hover:text-blue-700"
-          >
+          onClick={() => navigate('/')}
+          className="text-base font-bold text-blue-600 hover:text-blue-700"
+        >
           Rythmixx
         </button>
 

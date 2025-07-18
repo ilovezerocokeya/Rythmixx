@@ -1,5 +1,5 @@
-name: 'Rhythmix 이슈 생성'
-description: 'Rhythmix 관련 이슈를 생성합니다.'
+name: 'Rythmixx 이슈 생성'
+description: 'Rythmixx 관련 이슈를 생성합니다.'
 labels: [order]
 title: '이슈 이름을 작성해주세요'
 

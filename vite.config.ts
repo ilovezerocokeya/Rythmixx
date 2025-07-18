@@ -17,8 +17,8 @@ export default defineConfig({
       },
 
       manifest: {
-        name: 'Rhythmixx',
-        short_name: 'Rhythmixx',
+        name: 'Rythmixx',
+        short_name: 'Rythmixx',
         description: '사용자에게 맞춤형 플레이리스트를 제공하는 서비스',
         theme_color: '#ffffff',
       },

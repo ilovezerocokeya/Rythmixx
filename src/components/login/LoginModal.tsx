@@ -3,6 +3,7 @@ import { useModalStore } from '@/stores/useModalStore';
 
 const LoginModal = () => {
   const close = useModalStore((state) => state.close);
+  const redirectUrl = `${import.meta.env.VITE_BASE_URL}/auth/callback`;
 
   // 소셜 로그인 핸들러
   const handleSocialLogin = async (provider: 'google' | 'kakao') => {
@@ -10,7 +11,7 @@ const LoginModal = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: 'http://localhost:5173/auth/callback', 
+          redirectTo: redirectUrl, 
           queryParams: {
             prompt: 'select_account',
           },

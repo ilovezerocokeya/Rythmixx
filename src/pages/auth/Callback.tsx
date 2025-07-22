@@ -87,7 +87,7 @@ const Callback = () => {
 
   return (
     <main className="flex justify-center items-center min-h-screen bg-gray-900">
-      <section className="relative w-full max-w-[400px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
+      <section className="relative w-full max-w-[360px] h-[640px] bg-white rounded-3xl shadow-lg border border-gray-200 flex flex-col overflow-hidden">
         {/* Header 고정 */}
         <div className="z-10">
           <Header />

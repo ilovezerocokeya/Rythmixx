@@ -2,8 +2,10 @@ import { useWeatherStore } from "@/stores/useWeatherStore";
 
 export const useCurrentWeatherType = () => {
   // 전역 상태에서 현재 날씨와 시간대 정보를 가져옴
-  const weather = useWeatherStore((state) => state.weather);
-  const timeOfDay = useWeatherStore((state) => state.timeOfDay);
+  const { weather, timeOfDay } = useWeatherStore((state) => ({
+    weather: state.weather,
+    timeOfDay: state.timeOfDay,
+  }));
 
   const normalized = (weather ?? "").toLowerCase(); // 날씨 값이 없을 경우를 대비하여 소문자로 변환
 

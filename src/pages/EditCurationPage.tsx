@@ -14,11 +14,20 @@ import EditCurationSlider from '@/components/Edit/EditCurationSlider';
 
 export type ExtendedCategoryType = CategoryType | 'all';
 
+type YoutubeAPIResponse = {
+  snippet: {
+    title: string;
+    thumbnails?: {
+      medium?: { url: string };
+    };
+  };
+};
+
 const EditCurationPage = () => {
   const [videoId, setVideoId] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ExtendedCategoryType>('all');
-  const navigate = useNavigate();
   const [hasLoadedAll, setHasLoadedAll] = useState(false);
+  const navigate = useNavigate();
 
   const {
     curationVideosByCategory,
@@ -27,7 +36,6 @@ const EditCurationPage = () => {
     setCurationVideos,
   } = useCurationStore();
 
-  // 관리자 권한 체크: 이메일이 일치하지 않으면 홈으로 이동
   useEffect(() => {
     (async () => {
       const { data, error } = await supabase.auth.getUser();
@@ -38,39 +46,41 @@ const EditCurationPage = () => {
     })();
   }, [navigate]);
 
-  // 카테고리 변경 시 데이터 로드
   useEffect(() => {
     if (selectedCategory === 'all') {
       if (!hasLoadedAll) {
-        Promise.all(
-          CATEGORY_ORDER.map((key) => fetchCurationVideosByCategory(key))
-        ).then((results) => {
-          results.forEach((fetched, index) => {
-            setCurationVideos(CATEGORY_ORDER[index], fetched);
-          });
-          setHasLoadedAll(true);
-        }).catch((err) => console.error('전체 카테고리 데이터 로딩 실패:', err));
+        Promise.all(CATEGORY_ORDER.map((key) => fetchCurationVideosByCategory(key)))
+          .then((results) => {
+            results.forEach((fetched, index) => {
+              setCurationVideos(CATEGORY_ORDER[index], fetched);
+            });
+            setHasLoadedAll(true);
+          })
+          .catch((err) => console.error('전체 카테고리 데이터 로딩 실패:', err));
       }
     } else if (!curationVideosByCategory[selectedCategory]?.length) {
       fetchCurationVideosByCategory(selectedCategory)
         .then((fetched) => setCurationVideos(selectedCategory, fetched))
-        .catch((err) => console.error(`"${selectedCategory}" 카테고리 로딩 실패:`, err));
+        .catch((err) => console.error(`${selectedCategory} 카테고리 로딩 실패:`, err));
     }
   }, [selectedCategory, hasLoadedAll, setCurationVideos, curationVideosByCategory]);
 
-  // 영상 추가 버튼 핸들러
   const handleAdd = useCallback(async () => {
     const trimmed = videoId.trim();
     if (!trimmed || selectedCategory === 'all') return;
+
     const videoIdOnly = extractVideoId(trimmed);
     if (!videoIdOnly) return alert('유효한 유튜브 링크 또는 ID를 입력해주세요.');
-    if (curationVideosByCategory[selectedCategory]?.some(v => v.id === videoIdOnly)) return alert('이미 추가된 영상입니다.');
+    if (curationVideosByCategory[selectedCategory]?.some((v) => v.id === videoIdOnly)) {
+      return alert('이미 추가된 영상입니다.');
+    }
 
     try {
-      const data = await fetchVideoInfo(videoIdOnly);
+      const data = await fetchVideoInfo(videoIdOnly) as YoutubeAPIResponse | null;
       if (!data) return alert('잘못된 영상입니다.');
       const { title } = data.snippet;
-      const thumbnail = data.snippet.thumbnails?.medium?.url || '';
+      const thumbnail = data.snippet.thumbnails?.medium?.url ?? '';
+
       const newItem: CurationVideo = {
         id: videoIdOnly,
         title,
@@ -79,6 +89,7 @@ const EditCurationPage = () => {
         youtube_url: `https://www.youtube.com/watch?v=${videoIdOnly}`,
         category: selectedCategory,
       };
+
       addCurationVideo(selectedCategory, newItem);
       setVideoId('');
     } catch {
@@ -86,18 +97,20 @@ const EditCurationPage = () => {
     }
   }, [videoId, selectedCategory, curationVideosByCategory, addCurationVideo]);
 
-  // 영상 삭제 버튼 핸들러
-  const handleDelete = useCallback(async (videoId: string) => {
-    if (selectedCategory === 'all') return;
-    removeCurationVideo(selectedCategory, videoId);
-    await deleteCurationVideo(selectedCategory, videoId);
-  }, [selectedCategory, removeCurationVideo]);
+  const handleDelete = useCallback(
+    async (videoId: string) => {
+      if (selectedCategory === 'all') return;
+      removeCurationVideo(selectedCategory, videoId);
+      await deleteCurationVideo(selectedCategory, videoId);
+    },
+    [selectedCategory, removeCurationVideo]
+  );
 
-  // 저장 버튼 핸들러: supabase upsert 실행
   const handleSave = useCallback(async () => {
     if (selectedCategory === 'all') return;
+
     const videos = curationVideosByCategory[selectedCategory];
-    if (!videos.length) return alert('저장할 영상이 없습니다.');
+    if (!videos || !videos.length) return alert('저장할 영상이 없습니다.');
 
     const payload = videos.map(({ id, title, thumbnail_url, youtube_url }) => ({
       video_id: id,
@@ -110,6 +123,7 @@ const EditCurationPage = () => {
     const { error } = await supabase.from('curation').upsert(payload, {
       onConflict: 'video_id,category',
     });
+
     if (error) return alert('저장 실패');
     alert('저장되었습니다.');
   }, [selectedCategory, curationVideosByCategory]);
@@ -132,13 +146,13 @@ const EditCurationPage = () => {
             handleDelete={handleDelete}
           />
           {selectedCategory !== 'all' && (
-          <button
-            onClick={handleSave}
-            className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 active:scale-95 transition-transform duration-150"
-          >
-            저장하기
-          </button>
-        )}
+            <button
+              onClick={handleSave}
+              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 active:scale-95 transition-transform duration-150"
+            >
+              저장하기
+            </button>
+          )}
         </div>
       </div>
     </main>

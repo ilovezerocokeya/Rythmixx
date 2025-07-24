@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import CurationVideoCard from "../CommonUI/CurationVideoCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -19,21 +19,34 @@ interface MainCurationPlaylistSliderProps {
 const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({ playlists, title }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const controls = useAnimation();
-  const totalSlides = playlists.length;
 
   // 슬라이드 이동
-  const scroll = useCallback(
-    (dir: "left" | "right" | number) => {
-      setCurrentIndex((prev) => {
-        let next = typeof dir === "number" ? dir : dir === "left" ? prev - 1 : prev + 1;
-        if (next < 0) next = totalSlides - 1;
-        if (next >= totalSlides) next = 0;
-        return next;
-      });
-    },
-    [totalSlides]
-  );
+  useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentIndex((prev) => {
+      const next = prev + 1 >= playlists.length ? 0 : prev + 1;
+      return next;
+    });
+  }, 5000);
+  return () => clearInterval(interval);
+}, [playlists.length]);
 
+const handleScroll = (dir: "left" | "right" | number) => {
+  setCurrentIndex((prev) => {
+    let next =
+      typeof dir === "number"
+        ? dir
+        : dir === "left"
+        ? prev - 1
+        : prev + 1;
+
+    if (next < 0) next = playlists.length - 1;
+    if (next >= playlists.length) next = 0;
+
+    return next;
+  });
+};
+  
   // 인덱스 변경 시 애니메이션 적용
   useEffect(() => {
     controls.start({
@@ -42,13 +55,6 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
     });
   }, [currentIndex, controls]);
 
-  // 자동 슬라이드
-  useEffect(() => {
-    const interval = setInterval(() => {
-      scroll("right");
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [scroll]);
 
   if (playlists.length === 0) return null;
 
@@ -82,7 +88,7 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
 
           {/* 좌우 버튼 */}
           <button
-            onClick={() => scroll("left")}
+            onClick={() => handleScroll("left")}
             className="absolute left-1 top-1/2 -translate-y-1/2 z-20
               bg-black/50 text-white shadow-[0_4px_16px_rgba(0,0,0,0.5)]
               rounded-xl w-10 h-10 flex items-center justify-center
@@ -93,7 +99,7 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
           </button>
                     
           <button
-            onClick={() => scroll("right")}
+            onClick={() => handleScroll("right")}
             className="absolute right-1 top-1/2 -translate-y-1/2 z-20
               bg-black/50 text-white shadow-[0_4px_16px_rgba(0,0,0,0.5)]
               rounded-xl w-10 h-10 flex items-center justify-center
@@ -112,7 +118,7 @@ const MainCurationPlaylistSlider: React.FC<MainCurationPlaylistSliderProps> = ({
                   className={`transition-all duration-300 rounded-full h-1 w-4 ${
                     index === currentIndex ? "bg-blue-600" : "bg-gray-300"
                   }`}
-                  onClick={() => scroll(index)}
+                  onClick={() => handleScroll(index)}
                 />
               ))}
             </div>

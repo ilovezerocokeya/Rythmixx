@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useModalStore } from '@/stores/useModalStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { supabase } from '@/supabase/createClient';
-import WeatherDisplay from '../weather/WeatherDisplay';
+import WeatherDisplay from '../Weather/WeatherDisplay';
 
 const Header = () => {
   const openModal = useModalStore((state) => state.open);

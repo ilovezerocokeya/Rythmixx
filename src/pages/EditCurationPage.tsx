@@ -3,14 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/supabase/createClient';
-import { fetchVideoInfo } from '@/components/apis/youtube';
+import { fetchVideoInfo } from '@/utils/apis/youtube';
 import { extractVideoId } from '@/utils/youtube';
 import { useCurationStore, CurationVideo, CategoryType } from '@/stores/useCurationStore';
-import { deleteCurationVideo, fetchCurationVideosByCategory } from '@/components/apis/supabaseCuration';
+import { deleteCurationVideo, fetchCurationVideosByCategory } from '@/utils/apis/supabaseCuration';
 import { CATEGORY_ORDER } from '@/constants/curation';
-import EditCurationHeader from '@/components/edit/EditCurationHeader';
-import ControlPanel from '@/components/edit/EditCurationControlPanel';
-import EditCurationSlider from '@/components/edit/EditCurationSlider';
+import EditCurationHeader from '@/components/Edit/EditCurationHeader';
+import ControlPanel from '@/components/Edit/EditCurationControlPanel';
+import EditCurationSlider from '@/components/Edit/EditCurationSlider';
 
 export type ExtendedCategoryType = CategoryType | 'all';
 

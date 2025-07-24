@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/supabase/createClient';
 import { useAuthStore } from '@/stores/useAuthStore';
-import Header from '@/components/ui/Header';
+import Header from '@/components/CommonUI/Header';
 
 const Callback = () => {
   const navigate = useNavigate();

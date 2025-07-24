@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { CATEGORY_ORDER } from '@/constants/curation';
-import { fetchCurationVideosByCategory } from '@/components/apis/supabaseCuration';
+import { fetchCurationVideosByCategory } from '@/utils/apis/supabaseCuration';
+
 
 // 큐레이션 카테고리 타입 정의
 export type CategoryType =

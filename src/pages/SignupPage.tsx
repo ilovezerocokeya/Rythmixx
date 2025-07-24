@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { supabase } from '@/supabase/createClient';
 import { validateNickname } from '@/utils/validateNickname';
-import Header from '@/components/ui/Header';
+import Header from '@/components/CommonUI/Header';
 
 const SignupPage = () => {
   const navigate = useNavigate();

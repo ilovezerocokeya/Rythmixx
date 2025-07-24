@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import PlaylistSlider from '@/components/slider/PlaylistSlider';
-import MainCurationPlaylistSlider from '@/components/slider/MainCurationPlaylistSlider';
+import PlaylistSlider from '@/components/Slider/PlaylistSlider';
+import MainCurationPlaylistSlider from '@/components/Slider/MainCurationPlaylistSlider';
 import { CATEGORY_LABELS, CATEGORY_ORDER } from '@/constants/curation';
 import { CurationVideo, CategoryType } from '@/stores/useCurationStore';
 

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
-import CurationVideoCard from "../ui/CurationVideoCard";
+import CurationVideoCard from "../CommonUI/CurationVideoCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 type Playlist = {

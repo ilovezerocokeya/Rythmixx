@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
-import CurationVideoCard from "../ui/CurationVideoCard";
+import CurationVideoCard from "../CommonUI/CurationVideoCard";
 
 // 개별 카드 정보 타입 정의
 type PlaylistProps = {

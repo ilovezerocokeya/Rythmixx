@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { supabase } from '@/supabase/createClient';
 import { useNavigate } from 'react-router-dom';
-import Header from '@/components/ui/Header';
+import Header from '@/components/CommonUI/Header';
 import { validateNickname } from '@/utils/validateNickname';
 import { useDebounce } from '@/hooks/useDebounce';
-import CurationVideoCard from '@/components/ui/CurationVideoCard';
+import CurationVideoCard from '@/components/CommonUI/CurationVideoCard';
 import { useLikeStore } from '@/stores/useLikeStore';
 import { useMyPagePaginationStore } from '@/stores/useMyPagePaginationStore';
 

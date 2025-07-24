@@ -6,7 +6,7 @@ import { CurationVideo, CategoryType } from '@/stores/useCurationStore';
 
 type ExtendedCategoryType = CategoryType | 'all';
 
-type EditCurationSliderAreaProps = {
+interface EditCurationSliderAreaProps {
   selectedCategory: ExtendedCategoryType;
   curationVideosByCategory: Record<CategoryType, CurationVideo[]>;
   handleDelete: (videoId: string) => void;

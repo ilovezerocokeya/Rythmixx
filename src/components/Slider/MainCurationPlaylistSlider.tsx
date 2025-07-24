@@ -3,7 +3,7 @@ import { motion, useAnimation } from "framer-motion";
 import CurationVideoCard from "../CommonUI/CurationVideoCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-type Playlist = {
+type PlaylistProps = {
   id: string;
   title: string;
   imageUrl: string;
@@ -12,7 +12,7 @@ type Playlist = {
 };
 
 interface MainCurationPlaylistSliderProps {
-  playlists: Playlist[];
+  playlists: PlaylistProps[];
   title?: string;
 }
 

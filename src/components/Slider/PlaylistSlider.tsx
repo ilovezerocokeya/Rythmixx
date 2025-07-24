@@ -3,7 +3,7 @@ import { motion, useAnimation } from "framer-motion";
 import CurationVideoCard from "../CommonUI/CurationVideoCard";
 
 // 개별 카드 정보 타입 정의
-type PlaylistProps = {
+interface PlaylistProps {
   id: string;
   title: string;
   imageUrl: string;
@@ -12,7 +12,7 @@ type PlaylistProps = {
 };
 
 // 슬라이더 컴포넌트에 전달되는 props 타입 정의
-type PlaylistSliderProps = {
+interface PlaylistSliderProps {
   title?: string;
   playlists: PlaylistProps[];
 };

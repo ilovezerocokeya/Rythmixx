@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import clsx from "clsx";
 import { motion } from "framer-motion";
 
-type CurationVideoCardProps = {
+interface CurationVideoCardProps {
   id: string;
   title: string;
   imageUrl: string;

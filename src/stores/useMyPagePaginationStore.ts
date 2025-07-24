@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// 마이페이지에서 사용하는 페이지네이션 상태 타입 정의
-interface MyPagePaginationState {
+type MyPagePaginationState = {
   currentPage: number; 
   setCurrentPage: (page: number) => void;
   resetCurrentPage: () => void; 

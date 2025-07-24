@@ -8,8 +8,7 @@ type LikedPlaylist = {
   image_url: string;
 };
 
-// Zustand 스토어 인터페이스 정의
-interface LikeStore {
+type LikeStore = {
   userId: string | null;
   liked: Record<string, LikedPlaylist>;
   setUserId: (id: string) => void;

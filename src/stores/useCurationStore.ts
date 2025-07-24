@@ -32,7 +32,7 @@ export type CurationVideo = {
 };
 
 // Zustand 스토어 상태 타입 정의
-interface CurationState {
+type CurationState = {
   curationVideosByCategory: Record<CategoryType, CurationVideo[]>;
   isFetching: boolean;
   addCurationVideo: (category: CategoryType, video: CurationVideo) => void;

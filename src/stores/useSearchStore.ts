@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 
-interface SearchState {
+type SearchState = {
   keyword: string;
   setKeyword: (value: string) => void;
   clearKeyword: () => void;
-}
+};
 
 export const useSearchStore = create<SearchState>((set) => ({
   keyword: '',

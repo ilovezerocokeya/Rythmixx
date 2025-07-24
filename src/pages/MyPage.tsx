@@ -12,7 +12,6 @@ import { useLikeStore } from '@/stores/useLikeStore';
 import { useMyPagePaginationStore } from '@/stores/useMyPagePaginationStore';
 
 const Mypage = () => {
-  // 유저 정보 및 페이지네이션 상태 가져오기
   const { user, login } = useAuthStore();
   const navigate = useNavigate();
   const liked = useLikeStore((s) => s.liked);

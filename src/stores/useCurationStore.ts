@@ -1,25 +1,6 @@
 import { create } from 'zustand';
-import { CATEGORY_ORDER } from '@/constants/curation';
+import { CATEGORY_ORDER, CategoryType, CATEGORY_LIST } from '@/constants/curation';
 import { fetchCurationVideosByCategory } from '@/utils/apis/supabaseCuration';
-
-
-// 큐레이션 카테고리 타입 정의
-export type CategoryType =
-  | 'mood'
-  | 'weather'
-  | 'genre'
-  | 'situation'
-  | 'place'
-  | 'time'
-  | 'thisWeek'
-  | 'activity'
-  | 'era'
-  | 'vibe'
-  | 'instrument'
-  | 'language'
-  | 'season'
-  | 'energy'
-  | 'trend';
 
 // 큐레이션 영상 데이터 타입 정의
 export type CurationVideo = {
@@ -45,7 +26,7 @@ type CurationState = {
 
 // 초기 상태 생성 함수
 const createInitialCategories = (): Record<CategoryType, CurationVideo[]> => {
-  return CATEGORY_ORDER.reduce((acc, category) => {
+  return CATEGORY_LIST.reduce((acc, category) => {
     acc[category] = [];
     return acc;
   }, {} as Record<CategoryType, CurationVideo[]>);
@@ -58,12 +39,15 @@ export const useCurationStore = create<CurationState>((set, get) => ({
 
   // 영상 추가
   addCurationVideo: (category, video) =>
-    set((state) => ({
-      curationVideosByCategory: {
-        ...state.curationVideosByCategory,
-        [category]: [...state.curationVideosByCategory[category], video],
-      },
-    })),
+    set((state) => {
+      const currentList = state.curationVideosByCategory[category] ?? [];
+      return {
+        curationVideosByCategory: {
+          ...state.curationVideosByCategory,
+          [category]: [...currentList, video],
+        },
+      };
+    }),
 
   // 영상 제거
   removeCurationVideo: (category, videoId) =>

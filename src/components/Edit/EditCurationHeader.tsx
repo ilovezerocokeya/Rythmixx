@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 
 const EditCurationHeader: React.FC = () => {
   const navigate = useNavigate();
+  const handleLogoClick = () => {
+    navigate('/');
+  };
 
   return (
     <div className="relative flex items-center justify-between px-6 pt-6 shrink-0">
       <button
-        onClick={() => navigate('/')}
+        onClick={handleLogoClick}
         className="text-base font-bold text-blue-600 hover:text-blue-700"
       >
         Rythmixx

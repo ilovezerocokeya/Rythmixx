@@ -29,8 +29,8 @@ const Mypage = () => {
 
   // 유저 없으면 리디렉션 + 페이지 초기화
   useEffect(() => {
-    if (!user) navigate('/');
     resetCurrentPage();
+    if (!user) navigate('/');
   }, [user, navigate, resetCurrentPage]);
 
   if (!user) return null;
@@ -89,7 +89,7 @@ const Mypage = () => {
         <div className="absolute bottom-0 left-0 right-0 h-[50px] z-10 flex items-center justify-center border-t border-gray-200 bg-white">
           <p className="text-xs text-gray-500">© 2025 Rythmixx</p>
         </div>
-        
+
         <div className="px-4 pt-16 pb-6 space-y-4">
           <h2 className="text-lg font-bold text-blue-400 text-center">My페이지</h2>
 
@@ -97,7 +97,6 @@ const Mypage = () => {
           <div className="border border-gray-200 rounded-xl px-4 py-3 shadow-sm space-y-1.5">
             <p className="text-sm font-semibold text-gray-600 mb-2">닉네임</p>
             {editingNickname ? (
-              // 닉네임 수정 UI
               <div className="flex items-center gap-2">
                 <input
                   autoFocus
@@ -114,22 +113,43 @@ const Mypage = () => {
                   }}
                   className="flex-1 text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 />
-                <button onClick={handleNicknameUpdate} className="px-2 py-1 text-xs text-white bg-blue-600 rounded-md hover:bg-blue-700">저장</button>
-                <button onClick={() => { setNicknameInput(user?.nickname ?? ''); setEditingNickname(false); setNicknameError(null); }} className="px-2 py-1 text-xs text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100">취소</button>
+                <button
+                  onClick={handleNicknameUpdate}
+                  className="px-2 py-1 text-xs text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                >
+                  저장
+                </button>
+                <button
+                  onClick={() => {
+                    setNicknameInput(user?.nickname ?? '');
+                    setEditingNickname(false);
+                    setNicknameError(null);
+                  }}
+                  className="px-2 py-1 text-xs text-gray-600 border border-gray-300 rounded-md hover:bg-gray-100"
+                >
+                  취소
+                </button>
               </div>
             ) : (
               <div className="flex items-center gap-1">
                 <p className="text-sm font-medium text-gray-900">{user?.nickname}</p>
-                <button onClick={() => setEditingNickname(true)} className="text-sm text-blue-600 hover:text-blue-700">✏️</button>
+                <button
+                  onClick={() => setEditingNickname(true)}
+                  className="text-sm text-blue-600 hover:text-blue-700"
+                >
+                  ✏️
+                </button>
               </div>
             )}
-            {nicknameError && <p className="text-xs text-red-500 mt-1">{nicknameError}</p>}
+            {nicknameError && (
+              <p className="text-xs text-red-500 mt-1">{nicknameError}</p>
+            )}
           </div>
 
-          {/* 플레이리스트 영역 */}
+          {/* 좋아요한 플레이리스트 영역 */}
           <div className="border border-gray-200 rounded-xl px-5 py-3 shadow-sm">
             <p className="text-sm font-semibold text-gray-600 mb-2">
-               '{user.nickname}'님의 플레이리스트 <span className="text-red-500">♥</span>
+              '{user.nickname}'님의 플레이리스트 <span className="text-red-500">♥</span>
             </p>
             {likedPlaylists.length > 0 ? (
               <>
@@ -156,12 +176,16 @@ const Mypage = () => {
                     onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                     disabled={currentPage === 1}
                     className="flex-1 mr-2 py-2 rounded-lg bg-gray-100 text-sm font-medium text-gray-700 disabled:opacity-40"
-                  >Prev</button>
+                  >
+                    Prev
+                  </button>
                   <button
                     onClick={() => setCurrentPage(Math.min(currentPage + 1, totalPages))}
                     disabled={currentPage === totalPages}
                     className="flex-1 ml-2 py-2 rounded-lg bg-gray-100 text-sm font-medium text-gray-700 disabled:opacity-40"
-                  >Next</button>
+                  >
+                    Next
+                  </button>
                 </div>
               </>
             ) : (

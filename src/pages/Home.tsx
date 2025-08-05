@@ -19,20 +19,21 @@ const Home = () => {
   const isLoginModalOpen = modal === 'login';
   const isSearchModalOpen = modal === 'search';
 
+  
   useGeolocation();
   useWeather();
-
+  
+  // 유튜브 링크 열기 핸들러
+  const handleOpenYoutube = (url: string) => () => {
+    window.open(url, '_blank');
+  };
+  
   // 로그인 복원 처리
   useEffect(() => {
     useAuthStore.getState().restoreUser();
   }, []);
 
   // 첫 진입 시 큐레이션 데이터 불러오기
-  useEffect(() => {
-    useCurationStore.getState().fetchAllCurationVideos();
-  }, []);
-
-  // 개발 환경에서만 상태 변경 로그 출력
   useEffect(() => {
     useCurationStore.getState().fetchAllCurationVideos();
   }, []);
@@ -45,7 +46,7 @@ const Home = () => {
         id: item.id,
         title: item.title,
         imageUrl: item.imageUrl,
-        onClick: () => window.open(item.youtube_url, '_blank'),
+         onClick: handleOpenYoutube(item.youtube_url),
       })) ?? [];
       return acc;
     }, {} as Record<string, { id: string; title: string; imageUrl: string; onClick: () => void }[]>);

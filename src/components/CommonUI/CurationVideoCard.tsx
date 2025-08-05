@@ -26,6 +26,26 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
   const user = useAuthStore((state) => state.user);
   const openLoginModal = useModalStore((state) => state.open);
 
+  // 좋아요 버튼 클릭 시 처리 함수
+  const handleLikeButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (!user) {
+      openLoginModal("login");
+      return;
+    }
+    toggleLike({
+      playlist_id: id,
+      title,
+      image_url: imageUrl,
+    });
+  };
+
+  // 삭제 버튼 클릭 시 처리 함수
+  const handleDeleteButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation(); 
+    onDelete?.();
+  };
+
   return (
     <div
       className={clsx(
@@ -80,45 +100,32 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
 
       {/* 좋아요 & 삭제 버튼 */}
       {onDelete ? (
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete();
-        }}
-        className="absolute top-2 right-2 bg-white/20 hover:bg-white/40 text-white w-6 h-6 flex items-center justify-center rounded-full text-base font-semibold shadow-md transition-all duration-150"
-        title="삭제"
-      >
-        ×
-      </button>
-    ) : (
-      <motion.button
-        key={isLiked ? "liked" : "unliked"}
-        animate={{ scale: [1, 1.4, 1] }}
-        transition={{ duration: 0.3 }}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (!user) {
-            openLoginModal("login");
-            return;
-          }
-          toggleLike({
-            playlist_id: id,
-            title,
-            image_url: imageUrl,
-          });
-        }}
-        className={clsx(
-          "absolute flex items-center justify-center rounded-full shadow ring-1 ring-white/80 hover:scale-110 transition",
-          variant === "xs"
-            ? "top-[2px] right-[2px] w-5 h-5 text-[14px]"
-            : "top-1 right-1 w-7 h-7 text-2xl"
-        )}
-        style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#ef4444" }}
-        title="좋아요"
-      >
-        {isLiked ? "♥" : "♡"}
-      </motion.button>
-    )}
+        <button
+          onClick={handleDeleteButtonClick}
+          className="absolute top-2 right-2 bg-white/20 hover:bg-white/40 text-white w-6 h-6 flex items-center 
+                     justify-center rounded-full text-base font-semibold shadow-md transition-all duration-150"
+          title="삭제"
+        >
+          ×
+        </button>
+      ) : (
+        <motion.button
+          key={isLiked ? "liked" : "unliked"}
+          animate={{ scale: [1, 1.4, 1] }}
+          transition={{ duration: 0.3 }}
+          onClick={handleLikeButtonClick}
+          className={clsx(
+            "absolute flex items-center justify-center rounded-full shadow ring-1 ring-white/80 hover:scale-110 transition",
+            variant === "xs"
+              ? "top-[2px] right-[2px] w-5 h-5 text-[14px]"
+              : "top-1 right-1 w-7 h-7 text-2xl"
+          )}
+          style={{ backgroundColor: "rgba(255,255,255,0.9)", color: "#ef4444" }}
+          title="좋아요"
+        >
+          {isLiked ? "♥" : "♡"}
+        </motion.button>
+      )}
     </div>
   );
 };

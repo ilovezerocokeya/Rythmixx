@@ -5,9 +5,9 @@ interface Props {
 
 export const HighlightedText = ({ text, keywords }: Props) => {
   
-  if (keywords.length === 0) 
-    return 
-      <>{text}</>; 
+  if (keywords.length === 0) {
+  return <>{text}</>;
+}
   const regex = new RegExp(`(${keywords.join('|')})`, 'gi'); 
   const parts = text.split(regex); 
 

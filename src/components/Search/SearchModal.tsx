@@ -8,14 +8,26 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { CATEGORY_LABELS } from '@/constants/curation';
 
 const SearchModal = () => {
-  
   const { keyword, setKeyword, clearKeyword } = useSearchStore(); 
   const { curationVideosByCategory } = useCurationStore(); 
   const close = useModalStore((state) => state.close);
   const debouncedKeyword = useDebounce(keyword, 300);
 
+  // 모달 외부 클릭 시 닫기
   const handleOverlayClick = () => close();
+
+  // 모달 내부 클릭 시 버블링 방지
   const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
+
+  // 검색 입력값 변경 핸들러
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setKeyword(e.target.value);
+  };
+
+  // 검색 결과 항목 클릭 핸들러
+  const handleResultClick = (url: string) => () => {
+    window.open(url, '_blank');
+  };
 
   // 검색어를 소문자로 변환하고 공백 기준으로 분리
   const keywords = useMemo(() => {
@@ -56,7 +68,7 @@ const SearchModal = () => {
           <input
             autoFocus
             value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            onChange={handleInputChange}
             placeholder="🔎 플레이리스트 검색"
             className="w-full px-4 py-3 pr-10 text-base font-medium border-0 border-b border-gray-200 focus:outline-none focus:ring-0"
           />
@@ -78,7 +90,7 @@ const SearchModal = () => {
               filtered.map((video) => (
                 <div
                   key={video.id}
-                  onClick={() => window.open(video.youtube_url, '_blank')}
+                  onClick={handleResultClick(video.youtube_url)}
                   className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer transition"
                 >
                   <img

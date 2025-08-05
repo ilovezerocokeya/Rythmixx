@@ -75,7 +75,7 @@ export const useLikeStore = create<LikeStore>((set, get) => ({
       set({ liked: newLiked });
 
     } else {
-      // 좋아요 추가 (중복 insert 방지)
+      // 좋아요 추가
       const { error } = await supabase.from("likes").insert({
         user_id: userId,
         playlist_id: playlist.playlist_id,

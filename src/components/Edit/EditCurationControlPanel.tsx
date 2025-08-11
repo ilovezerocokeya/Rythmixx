@@ -1,46 +1,67 @@
-import React from 'react';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CategoryType } from '@/constants/curation';
+'use client';
 
-export type ExtendedCategoryType = CategoryType | 'all';
+import React, { useCallback, useMemo } from 'react';
+import { CategoryType, CATEGORY_LABELS, CATEGORY_ORDER } from '@/constants/curation';
 
-interface ControlPanelProps {
+type ExtendedCategoryType = CategoryType | 'all';
+
+type EditCurationControlPanelProps = {
   selectedCategory: ExtendedCategoryType;
-  setSelectedCategory: (category: ExtendedCategoryType) => void;
+  onChangeCategory: (next: ExtendedCategoryType) => void;
   videoId: string;
-  setVideoId: (id: string) => void;
-  handleAdd: () => void;
-}
+  onChangeVideoId: (v: string) => void;
+  onAdd: () => void;
+};
 
-const EditCurationControlPanel: React.FC<ControlPanelProps> = ({
+const EditCurationControlPanel: React.FC<EditCurationControlPanelProps> = ({
   selectedCategory,
-  setSelectedCategory,
+  onChangeCategory,
   videoId,
-  setVideoId,
-  handleAdd,
+  onChangeVideoId,
+  onAdd,
 }) => {
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCategory(e.target.value as ExtendedCategoryType);
-  };
+  // 카테고리 옵션은 고정된 배열이므로 useMemo로 재사용
+  const categoryOptions = useMemo<ExtendedCategoryType[]>(
+    () => ['all', ...CATEGORY_ORDER],
+    []
+  );
 
-  const handleVideoIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVideoId(e.target.value);
-  };
+  // 카테고리 변경 시 실행되는 핸들러
+  const handleCategoryChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      onChangeCategory(e.target.value as ExtendedCategoryType);
+    },
+    [onChangeCategory]
+  );
+
+  // 동영상 URL 또는 ID 입력 변경 시 실행되는 핸들러
+  const handleVideoChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChangeVideoId(e.target.value);
+    },
+    [onChangeVideoId]
+  );
+
+  const handleAddClick = useCallback(() => {
+    onAdd();
+  }, [onAdd]);
 
   return (
-    <div className="space-y-3">
-      <label className="block font-medium text-gray-700">카테고리 선택</label>
-
-      <select
-        value={selectedCategory}
-        onChange={handleCategoryChange}
-        className="w-full p-2 border rounded-md"
-      >
-        {(['all', ...CATEGORY_ORDER] as ExtendedCategoryType[]).map((key) => (
-          <option key={key} value={key}>
-            {key === 'all' ? '전체 보기' : CATEGORY_LABELS[key]}
-          </option>
-        ))}
-      </select>
+    <div className="space-y-4">
+      <div className="space-y-3">
+        <label className="block font-medium text-gray-700">카테고리 선택</label>
+        <select
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          className="w-full p-2 border rounded-md"
+        >
+          {categoryOptions.map((key) => (
+            <option key={key} value={key}>
+              {CATEGORY_LABELS[key]}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {selectedCategory !== 'all' && (
         <>
@@ -48,12 +69,11 @@ const EditCurationControlPanel: React.FC<ControlPanelProps> = ({
             type="text"
             placeholder="유튜브 영상 URL 또는 ID 입력"
             value={videoId}
-            onChange={handleVideoIdChange}
+            onChange={handleVideoChange}
             className="w-full p-2 border rounded-md"
           />
-
           <button
-            onClick={handleAdd}
+            onClick={handleAddClick}
             className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 active:scale-95 transition-transform duration-150"
           >
             영상 추가

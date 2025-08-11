@@ -60,7 +60,6 @@ const CurationVideoCard: React.FC<CurationVideoCardProps> = ({
       {/* 썸네일 */}
       {variant === "xs" ? (
         <div
-          onClick={onClick}
           className="aspect-[3/2] w-full rounded-md overflow-hidden select-none cursor-pointer bg-gray-100"
         >
           <img

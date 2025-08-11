@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useCallback, useEffect, useRef } from 'react';
 import { useSearchStore } from '@/stores/useSearchStore';
 import { useModalStore } from '@/stores/useModalStore';
 import { useCurationStore } from '@/stores/useCurationStore';
@@ -8,51 +8,85 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { CATEGORY_LABELS } from '@/constants/curation';
 
 const SearchModal = () => {
-  const { keyword, setKeyword, clearKeyword } = useSearchStore(); 
-  const { curationVideosByCategory } = useCurationStore(); 
+  const { keyword, setKeyword, clearKeyword } = useSearchStore();
+  const { curationVideosByCategory } = useCurationStore();
   const close = useModalStore((state) => state.close);
   const debouncedKeyword = useDebounce(keyword, 300);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
-  // 모달 외부 클릭 시 닫기
-  const handleOverlayClick = () => close();
+  // Esc 키 닫기
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [close]);
 
-  // 모달 내부 클릭 시 버블링 방지
-  const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
+  // 오버레이 클릭 닫기
+  const handleOverlayClick = useCallback(() => {
+    close();
+  }, [close]);
 
-  // 검색 입력값 변경 핸들러
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setKeyword(e.target.value);
-  };
+  // 모달 내부 클릭 버블링 방지
+  const stopPropagation = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
 
-  // 검색 결과 항목 클릭 핸들러
-  const handleResultClick = (url: string) => () => {
-    window.open(url, '_blank');
-  };
+  // 검색 입력 변경
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setKeyword(e.target.value);
+    },
+    [setKeyword]
+  );
 
-  // 검색어를 소문자로 변환하고 공백 기준으로 분리
+  // 검색어 지우기
+  const handleClear = useCallback(() => {
+    clearKeyword();
+  }, [clearKeyword]);
+
+  // 결과 항목 클릭 핸들러 생성(Map으로 재사용)
+  const allCurationVideos = useMemo(
+    () => Object.values(curationVideosByCategory).flat(),
+    [curationVideosByCategory]
+  );
+
+  const openMap = useMemo(() => {
+    const m = new Map<string, () => void>();
+    for (const v of allCurationVideos) {
+      m.set(v.id, () => window.open(v.youtube_url, '_blank'));
+    }
+    return m;
+  }, [allCurationVideos]);
+
+  // 검색어 토큰화
   const keywords = useMemo(() => {
     const trimmed = debouncedKeyword.trim().toLowerCase();
     return trimmed ? trimmed.split(/\s+/) : [];
   }, [debouncedKeyword]);
 
-  // 모든 큐레이션 영상을 배열로 변환
-  const allCurationVideos = useMemo(() => {
-    return Object.values(curationVideosByCategory).flat();
-  }, [curationVideosByCategory]);
-
-  // 검색어와 제목 또는 카테고리 라벨이 일치하는 영상 필터링
+  // 필터링
   const filtered = useMemo(() => {
     if (keywords.length === 0) return [];
-
     return allCurationVideos.filter((video) => {
       const title = video.title.toLowerCase();
       const categoryLabel = CATEGORY_LABELS[video.category].toLowerCase();
-
-      return keywords.some((kw) =>
-        title.includes(kw) || categoryLabel.includes(kw)
-      );
+      return keywords.some((kw) => title.includes(kw) || categoryLabel.includes(kw));
     });
   }, [keywords, allCurationVideos]);
+
+  // 결과 항목 키보드 접근성
+  const handleResultKeyDown = useCallback(
+    (id: string, url: string) => (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const fn = openMap.get(id) ?? (() => window.open(url, '_blank'));
+        fn();
+      }
+    },
+    [openMap]
+  );
 
   return (
     <div
@@ -60,6 +94,10 @@ const SearchModal = () => {
       onClick={handleOverlayClick}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="search-modal-title"
         onClick={stopPropagation}
         className="w-[320px] bg-white rounded-2xl shadow-xl border border-blue-600 overflow-hidden"
       >
@@ -69,13 +107,15 @@ const SearchModal = () => {
             autoFocus
             value={keyword}
             onChange={handleInputChange}
-            placeholder="🔎 플레이리스트 검색"
+            placeholder="플레이리스트 검색"
             className="w-full px-4 py-3 pr-10 text-base font-medium border-0 border-b border-gray-200 focus:outline-none focus:ring-0"
+            aria-labelledby="search-modal-title"
           />
           {keyword && (
             <button
-              onClick={clearKeyword}
-              className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm"
+              type="button"
+              onClick={handleClear}
+              className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm"
               aria-label="검색어 지우기"
             >
               ×
@@ -90,13 +130,18 @@ const SearchModal = () => {
               filtered.map((video) => (
                 <div
                   key={video.id}
-                  onClick={handleResultClick(video.youtube_url)}
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer transition"
+                  tabIndex={0}
+                  role="button"
+                  onClick={openMap.get(video.id)}
+                  onKeyDown={handleResultKeyDown(video.id, video.youtube_url)}
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer transition focus:outline-none focus:bg-gray-50"
+                  aria-label={`${video.title} 열기`}
                 >
                   <img
                     src={video.imageUrl}
                     alt={video.title}
                     className="w-[120px] aspect-[3/2] object-cover rounded-md flex-shrink-0"
+                    draggable={false}
                   />
                   <p className="text-sm font-medium text-gray-900 line-clamp-2">
                     {video.title}

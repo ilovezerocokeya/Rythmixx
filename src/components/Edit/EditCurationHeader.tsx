@@ -1,16 +1,14 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+'use client';
 
-const EditCurationHeader: React.FC = () => {
-  const navigate = useNavigate();
-  const handleLogoClick = () => {
-    navigate('/');
-  };
+type EditCurationHeaderProps = {
+  onBack: () => void;
+};
 
+const EditCurationHeader: React.FC<EditCurationHeaderProps> = ({ onBack }) => {
   return (
     <div className="relative flex items-center justify-between px-6 pt-6 shrink-0">
       <button
-        onClick={handleLogoClick}
+        onClick={onBack}
         className="text-base font-bold text-blue-600 hover:text-blue-700"
       >
         Rythmixx

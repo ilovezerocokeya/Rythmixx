@@ -1,42 +1,75 @@
+'use client';
+
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { supabase } from '@/supabase/createClient';
 import { useModalStore } from '@/stores/useModalStore';
+
+type OAuthProvider = 'google' | 'kakao';
 
 const LoginModal = () => {
   const close = useModalStore((state) => state.close);
   const redirectUrl = `${import.meta.env.VITE_BASE_URL}/auth/callback`;
 
-  // 소셜 로그인 요청 처리 함수
-  const handleSocialLogin = async (provider: 'google' | 'kakao') => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: redirectUrl,
-          queryParams: {
-            prompt: 'select_account',
+  const [isLoading, setIsLoading] = useState<OAuthProvider | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Esc 키로 닫기
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [close]);
+
+  // 최초 포커스 이동
+  useEffect(() => {
+    closeBtnRef.current?.focus();
+  }, []);
+
+  // 소셜 로그인 요청
+  const handleSocialLogin = useCallback(
+    async (provider: OAuthProvider) => {
+      if (isLoading) return;
+      setIsLoading(provider);
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: redirectUrl,
+            queryParams: { prompt: 'select_account' },
           },
-        },
-      });
-
-      if (error) {
-        console.error(`[OAuth Error] ${provider} 로그인 실패:`, error.message);
-        alert(`${provider} 로그인 실패: ${error.message}`);
+        });
+        if (error) {
+          console.error(`[OAuth Error] ${provider} 로그인 실패:`, error.message);
+          alert(`${provider} 로그인 실패: ${error.message}`);
+        }
+      } catch (err) {
+        console.error('[OAuth Unexpected Error] 로그인 중 예외 발생:', err);
+        alert('로그인 중 문제가 발생했습니다.');
+      } finally {
+        setIsLoading(null);
       }
-    } catch (err) {
-      console.error('[OAuth Unexpected Error] 로그인 중 예외 발생:', err);
-    }
-  };
+    },
+    [redirectUrl, isLoading]
+  );
 
-  // 소셜 로그인 버튼 클릭 핸들러
-  const handleClickSocialLogin = (provider: 'google' | 'kakao') => () => {
-    handleSocialLogin(provider);
-  };
+  // provider별 클릭 핸들러 메모이즈
+  const onClickGoogle = useMemo(
+    () => () => handleSocialLogin('google'),
+    [handleSocialLogin]
+  );
+  const onClickKakao = useMemo(
+    () => () => handleSocialLogin('kakao'),
+    [handleSocialLogin]
+  );
 
-  // 모달 외부 클릭 시 닫기
-  const handleOverlayClick = () => close();
+  // 오버레이 클릭 닫기
+  const handleOverlayClick = useCallback(() => close(), [close]);
 
-  // 모달 내부 클릭 시 버블링 방지
-  const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
+  // 모달 내부 클릭 버블링 방지
+  const stopPropagation = useCallback((e: React.MouseEvent) => e.stopPropagation(), []);
 
   return (
     <div
@@ -44,11 +77,17 @@ const LoginModal = () => {
       onClick={handleOverlayClick}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="login-modal-title"
         onClick={stopPropagation}
         className="bg-white w-[320px] px-6 py-8 rounded-2xl shadow-xl border border-gray-200 space-y-2 relative"
       >
         {/* 닫기 버튼 */}
         <button
+          ref={closeBtnRef}
+          type="button"
           onClick={close}
           aria-label="모달 닫기"
           className="absolute top-3 right-4 text-gray-400 hover:text-black text-xl font-bold"
@@ -57,25 +96,35 @@ const LoginModal = () => {
         </button>
 
         {/* 타이틀 */}
-        <h2 className="text-xl font-semibold text-gray-900 text-center">간단하게 시작해보세요</h2>
+        <h2 id="login-modal-title" className="text-xl font-semibold text-gray-900 text-center">
+          간단하게 시작해보세요
+        </h2>
         <p className="text-sm text-gray-500 text-center">소셜 로그인을 통해 바로 시작할 수 있어요</p>
 
-        {/* Google 로그인 버튼 */}
+        {/* Google 로그인 */}
         <button
-          onClick={handleClickSocialLogin('google')}
-          className="w-full py-2 rounded-md bg-white border border-gray-300 text-sm font-semibold hover:bg-gray-100 transition flex items-center justify-center space-x-2"
+          type="button"
+          onClick={onClickGoogle}
+          disabled={isLoading !== null}
+          className="w-full py-2 rounded-md bg-white border border-gray-300 text-sm font-semibold hover:bg-gray-100 disabled:opacity-60 transition flex items-center justify-center space-x-2"
         >
           <img src="/logo/google.svg" alt="Google" className="w-5 h-5" />
-          <span className="text-gray-700">Google로 로그인</span>
+          <span className="text-gray-700">
+            {isLoading === 'google' ? 'Google로 로그인 중...' : 'Google로 로그인'}
+          </span>
         </button>
 
-        {/* Kakao 로그인 버튼 */}
+        {/* Kakao 로그인 */}
         <button
-          onClick={handleClickSocialLogin('kakao')}
-          className="w-full py-2 rounded-md bg-[#FEE500] text-sm font-semibold hover:brightness-95 transition flex items-center justify-center space-x-2"
+          type="button"
+          onClick={onClickKakao}
+          disabled={isLoading !== null}
+          className="w-full py-2 rounded-md bg-[#FEE500] text-sm font-semibold hover:brightness-95 disabled:opacity-60 transition flex items-center justify-center space-x-2"
         >
           <img src="/logo/kakao.svg" alt="Kakao" className="w-6 h-6" />
-          <span className="text-[#3C1E1E]">Kakao로 로그인</span>
+          <span className="text-[#3C1E1E]">
+            {isLoading === 'kakao' ? 'Kakao로 로그인 중...' : 'Kakao로 로그인'}
+          </span>
         </button>
       </div>
     </div>

@@ -39,26 +39,26 @@ export const useCurationStore = create<CurationState>((set, get) => ({
 
   // 영상 추가
   addCurationVideo: (category, video) =>
-    set((state) => {
-      const currentList = state.curationVideosByCategory[category] ?? [];
-      return {
-        curationVideosByCategory: {
-          ...state.curationVideosByCategory,
-          [category]: [...currentList, video],
-        },
-      };
-    }),
+  set((state) => {
+    const newMap = { ...state.curationVideosByCategory };
+    const current = newMap[category] ?? [];
+    newMap[category] = [...current, video];
+
+    return {
+      curationVideosByCategory: newMap, 
+    };
+  }),
 
   // 영상 제거
   removeCurationVideo: (category, videoId) =>
-    set((state) => ({
-      curationVideosByCategory: {
-        ...state.curationVideosByCategory,
-        [category]: state.curationVideosByCategory[category].filter(
-          (v) => v.id !== videoId
-        ),
-      },
-    })),
+    set((state) => {
+      const newMap = { ...state.curationVideosByCategory };
+      newMap[category] = newMap[category].filter((v) => v.id !== videoId);
+
+      return {
+        curationVideosByCategory: newMap,
+      };
+    }),
 
   // 특정 카테고리 영상 세팅
   setCurationVideos: (category, videos) =>

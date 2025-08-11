@@ -1,66 +1,120 @@
-import React, { useMemo } from 'react';
-import PlaylistSlider from '@/components/Slider/PlaylistSlider';
+'use client';
+
+import React, { useCallback, useMemo } from 'react';
 import MainCurationPlaylistSlider from '@/components/Slider/MainCurationPlaylistSlider';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CategoryType } from '@/constants/curation';
-import { CurationVideo } from '@/stores/useCurationStore';
+import PlaylistSlider from '@/components/Slider/PlaylistSlider';
+import { CategoryType } from '@/constants/curation';
 
 type ExtendedCategoryType = CategoryType | 'all';
 
-interface EditCurationSliderAreaProps {
+type SliderConfig = {
+  category: ExtendedCategoryType;
+  title: string;
+  playlists: {
+    id: string;
+    title: string;
+    imageUrl: string;
+    onClick?: () => void;
+    onDelete?: () => void;
+  }[];
+};
+
+type CurationItem = { id: string; title: string; imageUrl: string; youtube_url: string };
+type CurationVideosByCategory = Record<CategoryType, CurationItem[]>;
+
+type EditCurationSliderProps = {
   selectedCategory: ExtendedCategoryType;
-  curationVideosByCategory: Record<CategoryType, CurationVideo[]>;
-  handleDelete: (videoId: string) => void;
-}
+  sliders: SliderConfig[];
+  curationVideosByCategory: CurationVideosByCategory;
+  onDelete: (videoId: string) => void;
+  onSave: () => void;
+};
 
-const EditCurationSlider: React.FC<EditCurationSliderAreaProps> = ({
+const EditCurationSlider: React.FC<EditCurationSliderProps> = ({
   selectedCategory,
+  sliders,
   curationVideosByCategory,
-  handleDelete,
+  onDelete,
+  onSave,
 }) => {
-  const handleVideoOpen = (url: string) => () => window.open(url, '_blank');
-  const handleVideoDelete = (id: string) => () => handleDelete(id);
+  // 유튜브 링크 새 탭 열기
+  const openYoutube = useCallback((url: string) => {
+    window.open(url, '_blank');
+  }, []);
 
-  const sliders = useMemo(() => {
-    const targetCategories: CategoryType[] =
-      selectedCategory === 'all'
-        ? CATEGORY_ORDER
-        : [selectedCategory as CategoryType];
+  // thisWeek 데이터만 추출
+  const thisWeekItems = useMemo(
+    () => curationVideosByCategory['thisWeek'] ?? [],
+    [curationVideosByCategory['thisWeek']]
+  );
 
-    return targetCategories.map((category) => {
-      const videos = curationVideosByCategory[category] ?? [];
+  // 항목별 삭제 핸들러 맵
+  const deleteHandlerMap = useMemo(() => {
+    const map = new Map<string, () => void>();
+    for (const item of thisWeekItems) map.set(item.id, () => onDelete(item.id));
+    return map;
+  }, [thisWeekItems, onDelete]);
 
-      const playlists = videos.map((item) => ({
+  // 항목별 클릭 핸들러 맵
+  const clickHandlerMap = useMemo(() => {
+    const map = new Map<string, () => void>();
+    for (const item of thisWeekItems) map.set(item.id, () => openYoutube(item.youtube_url));
+    return map;
+  }, [thisWeekItems, openYoutube]);
+
+  // thisWeek 슬라이더에 전달할 데이터
+  const thisWeekPlaylists = useMemo(
+    () =>
+      thisWeekItems.map((item) => ({
         id: item.id,
         title: item.title,
         imageUrl: item.imageUrl,
-        onClick: handleVideoOpen(item.youtube_url),
-        onDelete: selectedCategory === 'all' ? undefined : handleVideoDelete(item.id),
-      }));
+        onDelete: deleteHandlerMap.get(item.id),
+        onClick: clickHandlerMap.get(item.id),
+      })),
+    [thisWeekItems, deleteHandlerMap, clickHandlerMap]
+  );
 
-      return {
-        category,
-        title: `${CATEGORY_LABELS[category]} 추천 미리보기`,
-        playlists,
-      };
-    });
-  }, [curationVideosByCategory, selectedCategory, handleDelete]);
+  // all 화면에서 thisWeek를 제외한 슬라이더 목록
+  const otherSlidersWhenAll = useMemo(
+    () => sliders.filter((s) => s.category !== 'thisWeek'),
+    [sliders]
+  );
 
   return (
     <>
-      {sliders.map((slider) => {
-        const SliderComponent =
-          slider.category === 'thisWeek'
-            ? MainCurationPlaylistSlider
-            : PlaylistSlider;
-
-        return (
-          <SliderComponent
+      {selectedCategory === 'all' ? (
+        <>
+          {thisWeekPlaylists.length > 0 && (
+            <MainCurationPlaylistSlider playlists={thisWeekPlaylists} />
+          )}
+          {otherSlidersWhenAll.map((slider) => (
+            <PlaylistSlider
+              key={slider.category}
+              title={slider.title}
+              playlists={slider.playlists}
+            />
+          ))}
+        </>
+      ) : selectedCategory === 'thisWeek' ? (
+        <MainCurationPlaylistSlider playlists={thisWeekPlaylists} />
+      ) : (
+        sliders.map((slider) => (
+          <PlaylistSlider
             key={slider.category}
             title={slider.title}
             playlists={slider.playlists}
           />
-        );
-      })}
+        ))
+      )}
+      {selectedCategory !== 'all' && (
+        <button
+          onClick={onSave}
+          className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 active:scale-95 transition-transform duration-150 mt-6"
+        >
+          저장하기
+        </button>
+      )}
     </>
   );
 };
